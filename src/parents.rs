@@ -5,11 +5,10 @@ use bevy::prelude::*;
 use bevy_progressbar::{ProgressBar, ProgressBarBundle, ProgressBarMaterial};
 
 use crate::{animations::AnimationBundle, child::Child, growing::Growable, hitbox::*, needs::*, loading::*, GameState};
-use crate::animations::Animation;
 
 pub const MAX_PARENTS: usize = 13;
-pub const MIN_PARENT_SPAWN_TIME: f32 = 1.0;
-pub const MAX_PARENT_SPAWN_TIME: f32 = 3.0;
+pub const MIN_PARENT_SPAWN_TIME: f32 = 10.0;
+pub const MAX_PARENT_SPAWN_TIME: f32 = 30.0;
 
 // Maybe in future replace with texture size?
 pub const PARENT_SIZE: Vec2 = Vec2::new(128.0, 256.0);
@@ -17,7 +16,7 @@ pub const PARENT_WALK_SPEED: f32 = 100.0;
 /// Gap between parents in the parent waiting queue.
 pub const PARENT_GAP: f32 = 10.0;
 /// Time after which will parent run out of patience, which results in game over.
-pub const PARENT_MAX_PATIENCE: f32 = 120.0;
+pub const PARENT_MAX_PATIENCE: f32 = 1.0;
 /// Y position of parent spawn.
 pub const PARENT_SPAWN_Y: f32 = 400.0;
 /// X position of the start of the parent queue.
@@ -178,19 +177,21 @@ fn handle_random_parent_spawning(
             ..bevy_utils::default()
         };
 
-        let bar_container = commands.spawn(NodeBundle {
-            style: Style {
-                position_type: PositionType::Absolute,
-                width: Val::Vw(BAR_WIDTH / crate::WINDOW_WIDTH * 100.0),
-                height: Val::Vh(BAR_HEIGHT / crate::WINDOW_HEIGHT * 100.0),
-                top: Val::Px(BAR_OFFSET),
-                border: UiRect::all(Val::Px(2.)),
-                ..bevy_utils::default()
+        let bar_container = commands.spawn((NodeBundle {
+                style: Style {
+                    position_type: PositionType::Absolute,
+                    width: Val::Vw(BAR_WIDTH / crate::WINDOW_WIDTH * 100.0),
+                    height: Val::Vh(BAR_HEIGHT / crate::WINDOW_HEIGHT * 100.0),
+                    top: Val::Px(BAR_OFFSET),
+                    border: UiRect::all(Val::Px(2.)),
+                    ..bevy_utils::default()
+                },
+                border_color: Color::rgb(0.4, 0.2, 0.2).into(),
+                background_color: Color::rgb(0.2, 0.1, 0.1).into(),
+                ..default()
             },
-            border_color: Color::rgb(0.4, 0.2, 0.2).into(),
-            background_color: Color::rgb(0.2, 0.1, 0.1).into(),
-            ..default()
-        }).id();
+            crate::GameObject,
+        )).id();
 
         let patience_bar = commands.spawn((
             ProgressBarBundle::new(
@@ -199,6 +200,7 @@ fn handle_random_parent_spawning(
                 &mut bar_materials,
             ),
             PatienceBar,
+            crate::GameObject,
         )).id();
 
         commands.get_entity(bar_container).unwrap().add_child(patience_bar);
@@ -238,6 +240,7 @@ fn spawn_parent(
         },
         InLayers::new_single(Layer::Parent),
         HasPatienceBar(patience_bar),
+        crate::GameObject,
     )).id();
 
     spawn_animations(parent, commands, animation_assets, species, ParentState::Walking);
@@ -414,6 +417,7 @@ fn move_walkers(
                 },
                 Needs::default(),
                 DropBlocker,
+                crate::GameObject,
             ));
 
             parent.state = ParentState::Patient;
@@ -428,6 +432,7 @@ fn update_patience(
     mut bars: Query<(&mut ProgressBar, &bevy::prelude::Parent), (With<PatienceBar>, Without<Parent>)>,
     mut styles: Query<&mut Style, (Without<Parent>, Without<ProgressBar>)>,
     camera: Query<(&Camera, &GlobalTransform), (With<Camera2d>, Without<Parent>, Without<PatienceBar>)>,
+    mut next_state: ResMut<NextState<GameState>>,
 ) {
     // moving the bar really shouldn't be here but I'm too lazy to refactor it
     let (camera, camera_trans) = camera.single();
@@ -457,8 +462,7 @@ fn update_patience(
         }
 
         if parent.patience_timer.just_finished() {
-            // TODO: Game Over
-            println!("GAME OVER!");
+            next_state.set(GameState::GameOver);
         }
     }
 }

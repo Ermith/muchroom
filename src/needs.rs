@@ -71,6 +71,7 @@ fn spawn_bucket(mut commands: Commands, textures: Res<TextureAssets>) {
             transform: Transform::from_translation(FOOD_SOURCE_SPAWN_POS.extend(1.0)),
             ..default()
         },
+        crate::GameObject,
     ));
 
     // spawn food into food source
@@ -91,6 +92,7 @@ fn spawn_bucket(mut commands: Commands, textures: Res<TextureAssets>) {
             ..default()
         },
         Food,
+        crate::GameObject,
     ));
 
     // spawn water source
@@ -104,6 +106,7 @@ fn spawn_bucket(mut commands: Commands, textures: Res<TextureAssets>) {
             transform: Transform::from_translation(WATER_SOURCE_SPAWN_POS.extend(1.0)),
             ..default()
         },
+        crate::GameObject,
     ));
 
     // spawn water into water source
@@ -124,6 +127,7 @@ fn spawn_bucket(mut commands: Commands, textures: Res<TextureAssets>) {
             ..default()
         },
         Water,
+        crate::GameObject,
     ));
 }
 
