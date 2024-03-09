@@ -36,4 +36,6 @@ pub struct TextureAssets {
     pub github: Handle<Image>,
     #[asset(path = "textures/debug_mushroom.png")]
     pub debug_mushroom: Handle<Image>,
+    #[asset(path = "textures/parent_placeholder.png")]
+    pub placeholder_parent: Handle<Image>,
 }

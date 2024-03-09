@@ -7,6 +7,7 @@ mod menu;
 mod player;
 mod hitbox;
 mod growing;
+mod parents;
 
 use crate::actions::ActionsPlugin;
 use crate::audio::InternalAudioPlugin;
@@ -15,6 +16,7 @@ use crate::menu::MenuPlugin;
 use crate::player::PlayerPlugin;
 use crate::hitbox::HitboxPlugin;
 use crate::growing::GrowingPlugin;
+use crate::parents::ParentsPlugin;
 
 use bevy::app::App;
 #[cfg(debug_assertions)]
@@ -47,6 +49,7 @@ impl Plugin for GamePlugin {
             PlayerPlugin,
             HitboxPlugin,
             GrowingPlugin,
+            ParentsPlugin,
         ));
 
         #[cfg(debug_assertions)]
