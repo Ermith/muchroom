@@ -19,7 +19,7 @@ struct Highlight;
 
 impl Plugin for HighlightPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, handle_highlight_visibility.run_if(in_state(GameState::Playing)));
+        app.add_systems(Update, handle_highlight_visibility.run_if(in_state(GameState::Playing).and_then(in_state(crate::PausedState::Unpaused))));
     }
 }
 

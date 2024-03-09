@@ -43,7 +43,7 @@ impl Plugin for NeedsPlugin {
             .add_systems(Update, (
                 handle_needs_decrease,
                 read_on_drop_events
-            ).run_if(in_state(GameState::Playing)));
+            ).run_if(in_state(GameState::Playing).and_then(in_state(crate::PausedState::Unpaused))));
     }
 }
 

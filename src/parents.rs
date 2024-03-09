@@ -97,7 +97,7 @@ impl Plugin for ParentsPlugin {
                 update_patience,
                 read_on_drop_events,
                 update_parent_animations,
-            ).run_if(in_state(GameState::Playing)));
+            ).run_if(in_state(GameState::Playing).and_then(in_state(crate::PausedState::Unpaused))));
     }
 }
 

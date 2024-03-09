@@ -14,7 +14,9 @@ impl Plugin for HitboxPlugin {
             .add_event::<CollisionEvent>()
             .add_systems(PreUpdate, emit_collision_events)
             .add_event::<DropEvent>()
-            .add_systems(Update, (initiate_drag, update_drag, end_drag));
+            .add_systems(Update, (initiate_drag, update_drag, end_drag)
+                .run_if(in_state(GameState::Playing).and_then(in_state(crate::PausedState::Unpaused))))
+            .add_systems(OnExit(crate::PausedState::Unpaused), end_all_drags);
         if cfg!(debug_assertions) {
             // H to toggle hitbox gizmos
             app
@@ -201,5 +203,14 @@ fn update_hitbox_gizmos_config(
     let (config, _) = config_store.config_mut::<HitboxGizmos>();
     if keyboard.just_pressed(KeyCode::KeyH) {
         config.enabled = !config.enabled;
+    }
+}
+
+fn end_all_drags(
+    mut commands: Commands,
+    drag_shadows: Query<Entity, With<DragShadow>>,
+) {
+    for entity in drag_shadows.iter() {
+        commands.entity(entity).despawn_recursive();
     }
 }

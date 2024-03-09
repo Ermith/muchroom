@@ -19,6 +19,7 @@ mod highlight;
 #[cfg(debug_assertions)]
 mod cheats;
 mod score;
+mod pause;
 
 use crate::animations::AnimationsPlugin;
 use crate::actions::ActionsPlugin;
@@ -37,6 +38,8 @@ use crate::highlight::HighlightPlugin;
 #[cfg(debug_assertions)]
 use crate::cheats::CheatsPlugin;
 use crate::score::ScorePlugin;
+pub use crate::pause::PausedState;
+use crate::pause::PausedPlugin;
 
 pub const WINDOW_WIDTH: f32 = 1920.0;
 pub const WINDOW_HEIGHT: f32 = 1080.0;
@@ -61,13 +64,6 @@ enum GameState {
     GameOver,
 }
 
-#[derive(States, Default, Clone, Eq, PartialEq, Debug, Hash)]
-enum PausedState {
-    #[default]
-    Unpaused,
-    Paused,
-}
-
 pub struct GamePlugin;
 
 impl Plugin for GamePlugin {
@@ -80,7 +76,6 @@ impl Plugin for GamePlugin {
             .insert_resource(ClearColor(Color::rgb(190.0 / 255.0, 143.0 / 255.0, 96.0 / 255.0)));
         app
             .init_state::<GameState>()
-            .init_state::<PausedState>()
             .add_plugins((
             LoadingPlugin,
             camera::CameraPlugin {
@@ -103,6 +98,7 @@ impl Plugin for GamePlugin {
             CheatsPlugin))
             .add_plugins(( // gotta split it in two because of how traits can't be generic over arbitrarily long tuples currently so there's a limit
             ScorePlugin,
+            PausedPlugin,
         )); 
 
         #[cfg(debug_assertions)]
