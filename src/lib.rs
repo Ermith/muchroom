@@ -27,6 +27,8 @@ use crate::parents::ParentsPlugin;
 use crate::garden::GardenPlugin;
 use crate::hunger::HungerPlugin;
 
+pub const WINDOW_WIDTH: f32 = 1920.0;
+pub const WINDOW_HEIGHT: f32 = 1080.0;
 
 use bevy::app::App;
 #[cfg(debug_assertions)]
@@ -53,8 +55,8 @@ impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app
             .insert_resource(world::WorldParams {
-                width: 1920.0,
-                height: 1080.0,
+                width: WINDOW_WIDTH,
+                height: WINDOW_HEIGHT,
             })
             .insert_resource(ClearColor(Color::rgb(190.0 / 255.0, 143.0 / 255.0, 96.0 / 255.0)));
         app.init_state::<GameState>().add_plugins((

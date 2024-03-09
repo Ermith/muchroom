@@ -38,6 +38,8 @@ const FLOATY_COLOR_SCALE: f32 = 0.03;
 const BAR_SECTIONS: usize = 200;
 /// Height of patience bar in pixels.
 const BAR_HEIGHT: f32 = 20.0;
+/// Width of the patience bar in pixels.
+const BAR_WIDTH: f32 = PARENT_SIZE.x - 20.0;
 /// Y offset of patience bar from parent.
 const BAR_OFFSET: f32 = 70.0;
 
@@ -145,16 +147,16 @@ fn handle_random_parent_spawning(
         bar_bar.set_progress(1.0);
         let bar_style = Style {
             position_type: PositionType::Absolute,
-            width: Val::Vw((PARENT_SIZE.x - 4.0) / 1920.0 * 100.0),
-            height: Val::Vh((BAR_HEIGHT - 4.0) / 1080.0 * 100.0),
+            width: Val::Vw((BAR_WIDTH - 4.0) / crate::WINDOW_WIDTH * 100.0),
+            height: Val::Vh((BAR_HEIGHT - 4.0) / crate::WINDOW_HEIGHT * 100.0),
             ..bevy_utils::default()
         };
 
         let bar_container = commands.spawn(NodeBundle {
             style: Style {
                 position_type: PositionType::Absolute,
-                width: Val::Vw(PARENT_SIZE.x / 1920.0 * 100.0),
-                height: Val::Vh(BAR_HEIGHT / 1080.0 * 100.0),
+                width: Val::Vw(BAR_WIDTH / crate::WINDOW_WIDTH * 100.0),
+                height: Val::Vh(BAR_HEIGHT / crate::WINDOW_HEIGHT * 100.0),
                 top: Val::Px(BAR_OFFSET),
                 border: UiRect::all(Val::Px(2.)),
                 ..bevy_utils::default()
@@ -278,7 +280,7 @@ fn update_patience(
                 while bar.sections.len() > (parent.patience_timer.fraction_remaining() * BAR_SECTIONS as f32) as usize {
                     bar.sections.pop();
                 }
-                let bar_trans = trans.translation - Vec3::Y * BAR_OFFSET - Vec3::new(PARENT_SIZE.x / 2.0, BAR_HEIGHT / 2.0, 0.0);
+                let bar_trans = trans.translation - Vec3::Y * BAR_OFFSET - Vec3::new(BAR_WIDTH / 2.0, BAR_HEIGHT / 2.0, 0.0);
                 let bar_pos = camera.world_to_viewport(camera_trans, bar_trans).unwrap();
                 let mut style = styles.get_mut(ui_parent.get()).unwrap();
                 style.left = Val::Px(bar_pos.x);
