@@ -19,11 +19,20 @@ pub struct Draggable {
     pub must_intersect_with: Option<EnumSet<Layer>>,
     /// if set, overlapping with any of these entities allows a drop; this overrides all other conditions
     pub special_allowed_entities: Vec<Entity>,
+    /// whether the drag shadow should be transparent
+    pub drag_opaque: bool,
+    pub no_hover_shadow: bool,
+    pub hover_shadow: Option<Entity>,
 }
 
 #[derive(Component, Debug)]
 pub struct DragShadow {
     pub offset: Vec2,
+    pub original_entity: Entity,
+}
+
+#[derive(Component, Debug)]
+pub struct HoverShadow{
     pub original_entity: Entity,
 }
 
@@ -42,37 +51,73 @@ pub fn initiate_drag(
     mouse_buttons: Res<ButtonInput<MouseButton>>,
     mouse_coords: Res<super::mouse::MouseCoords>,
     mut query: Query<(Entity, &Transform, &Hitbox, &mut Draggable, &Handle<Image>, &Sprite)>,
+    mut hover_shadows: Query<(Entity, &HoverShadow, &mut Transform), Without<Draggable>>,
 ) {
-    if !mouse_buttons.just_pressed(MouseButton::Left) {
-        return;
-    }
-
     let mouse_pos: Vec2 = mouse_coords.as_ref().into();
 
+    for (hover_shadow_entity, HoverShadow{original_entity}, _) in &mut hover_shadows.iter() {
+        if !query.get(*original_entity).is_ok() {
+            commands.entity(hover_shadow_entity).despawn();
+        }
+    }
+
+    let mut found_overlap = false;
+
     for (entity, transform, hitbox, mut draggable, image, sprite) in query.iter_mut() {
-        if hitbox.world_rect(transform).contains(mouse_pos) {
-            let offset = Vec2::ZERO; //transform.translation.truncate() - mouse_pos;
-            let drag_shadow_entity = commands.spawn((
-                DragShadow {
-                    offset,
-                    original_entity: entity,
-                },
-                SpriteBundle {
-                    texture: image.clone(),
-                    sprite: Sprite {
-                        color: Color::rgba(1.5, 1.5, 1.5, 0.5),
-                        custom_size: sprite.custom_size.and_then(|size| Some(size * 1.3)),
-                        ..sprite.clone()
+        if !found_overlap && hitbox.world_rect(transform).contains(mouse_pos) {
+            if mouse_buttons.just_pressed(MouseButton::Left) {
+                let offset = Vec2::ZERO; //transform.translation.truncate() - mouse_pos;
+                let drag_shadow_entity = commands.spawn((
+                    DragShadow {
+                        offset,
+                        original_entity: entity,
                     },
-                    transform: Transform::from_translation(transform.translation),
-                    ..Default::default()
-                },
-                hitbox.clone(),
-                EmitsCollisions::default(),
-                crate::GameObject,
-            )).id();
-            draggable.drag_shadow = Some(drag_shadow_entity);
-            return; // at most one drag-start!
+                    SpriteBundle {
+                        texture: image.clone(),
+                        sprite: Sprite {
+                            custom_size: sprite.custom_size.and_then(|size| Some(size * 1.3)),
+                            ..sprite.clone()
+                        },
+                        transform: Transform::from_translation(transform.translation),
+                        ..Default::default()
+                    },
+                    hitbox.clone(),
+                    EmitsCollisions::default(),
+                    crate::GameObject,
+                )).id();
+                draggable.drag_shadow = Some(drag_shadow_entity);
+            } else {
+                if draggable.hover_shadow.is_none() {
+                    let mut translation = transform.translation;
+                    translation.z = 5.0;
+                    let hover_shadow_entity = commands.spawn((
+                        HoverShadow {
+                            original_entity: entity,
+                        },
+                        SpriteBundle {
+                            texture: image.clone(),
+                            sprite: Sprite {
+                                custom_size: sprite.custom_size.and_then(|size| Some(size * 1.3)),
+                                color: Color::rgba(1.1, 1.1, 1.1, 0.7),
+                                ..sprite.clone()
+                            },
+                            transform: Transform::from_translation(translation),
+                            ..Default::default()
+                        },
+                        crate::GameObject,
+                    )).id();
+                    draggable.hover_shadow = Some(hover_shadow_entity);
+                } else {
+                    let (_, _, mut transform) = hover_shadows.get_mut(draggable.hover_shadow.unwrap()).unwrap();
+                    transform.translation = transform.translation.truncate().extend(5.0);
+                }
+            }
+            found_overlap = true;
+        } else {
+            if let Some(hover_shadow_entity) = draggable.hover_shadow {
+                commands.entity(hover_shadow_entity).despawn();
+                draggable.hover_shadow = None;
+            }
         }
     }
 }
@@ -157,6 +202,7 @@ pub fn end_drag(
             }
         }
         let succeeded_drop = special_entity_collision || (!collides_with_blocker && is_contained_in_target && intersects_with_target);
+        let drag_opaque = dragged_draggable.drag_opaque;
         if let Ok((_, _, mut draggable, mut transform, _, _)) = draggables.get_mut(original_entity) {
             if released_drag && succeeded_drop {
                 let orig_z = transform.translation.z;
@@ -170,9 +216,17 @@ pub fn end_drag(
                 commands.entity(drag_shadow_entity).despawn();
             } else if !released_drag{
                 sprite.color = if succeeded_drop { 
-                    Color::rgba(1.5, 1.5, 1.5, 0.7)
+                    if !drag_opaque {
+                        Color::rgba(1.5, 1.5, 1.5, 0.7)
+                    } else {
+                        Color::WHITE
+                    }
                 } else {
-                    Color::rgba(1.2, 0.5, 0.5, 0.7)
+                    if !drag_opaque {
+                        Color::rgba(1.2, 0.5, 0.5, 0.7)
+                    } else {
+                        Color::rgba(1.0, 0.5, 0.5, 1.0)
+                    }
                 };
             } else {
                 commands.entity(drag_shadow_entity).despawn();

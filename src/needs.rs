@@ -89,6 +89,7 @@ fn spawn_bucket(mut commands: Commands, textures: Res<TextureAssets>) {
         InLayers::new_single(Layer::Tool),
         Draggable {
             must_intersect_with: Some(Layer::Child.into()),
+            drag_opaque: true,
             ..default()
         },
         Food,
@@ -124,6 +125,7 @@ fn spawn_bucket(mut commands: Commands, textures: Res<TextureAssets>) {
         InLayers::new_single(Layer::Tool),
         Draggable {
             must_intersect_with: Some(Layer::Child.into()),
+            drag_opaque: true,
             ..default()
         },
         Water,
