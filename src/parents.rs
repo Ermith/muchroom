@@ -8,8 +8,8 @@ use crate::{child::Child, growing::Growable, hitbox::*, loading::{AnimationAsset
 use crate::animations::Animation;
 
 pub const MAX_PARENTS: usize = 5;
-pub const MIN_PARENT_SPAWN_TIME: f32 = 10.0;
-pub const MAX_PARENT_SPAWN_TIME: f32 = 30.0;
+pub const MIN_PARENT_SPAWN_TIME: f32 = 1.0;
+pub const MAX_PARENT_SPAWN_TIME: f32 = 3.0;
 
 // Maybe in future replace with texture size?
 pub const PARENT_SIZE: Vec2 = Vec2::new(128.0, 256.0);
@@ -20,6 +20,10 @@ pub const PARENT_QUEUE_OFFSET: f32 = 256.0;
 pub const PARENT_GAP: f32 = 10.0;
 /// Time after which will parent run out of patience, which results in game over.
 pub const PARENT_MAX_PATIENCE: f32 = 120.0;
+/// Y position of parent spawn.
+pub const PARENT_SPAWN_Y: f32 = 400.0;
+/// X position of the start of the parent queue.
+pub const PARENT_QUEUE_X: f32 = -950.0;
 
 /// Size of spawned children.
 pub const CHILD_SIZE: f32 = 64.0;
@@ -99,6 +103,7 @@ fn handle_random_parent_spawning(
     window_query: Query<&Window>,
     mut bar_materials: ResMut<Assets<ProgressBarMaterial>>,
     animation_assets: Res<AnimationAssets>,
+    camera: Query<(&Camera, &GlobalTransform), With<Camera2d>>,
 ) {
     let avaible_slot = parent_queue.0.iter().position(|&slot| !slot);
     if avaible_slot.is_none() {
@@ -113,10 +118,12 @@ fn handle_random_parent_spawning(
         ));
         timer.0.reset();
 
+        let (camera, camera_transform) = camera.single();
         let window = window_query.single();
+        let spawn_x = camera.viewport_to_world_2d(camera_transform, Vec2::new(-PARENT_SIZE.x, 0.0)).unwrap().x;
         let spawn_pos = Vec3::new(
-            -window.width() / 2.0 - PARENT_SIZE.x / 2.0,
-            window.height() / 2.0 - PARENT_SIZE.y / 2.0,
+            spawn_x,
+            PARENT_SPAWN_Y,
             1.0
         );
         parent_queue.0[avaible_slot] = true;
@@ -182,7 +189,7 @@ fn handle_random_parent_spawning(
                 ..default()
             },
             Walker {
-                destination: spawn_pos.xy() 
+                destination: Vec2::new(PARENT_QUEUE_X, PARENT_SPAWN_Y)
                     + Vec2::X * (PARENT_QUEUE_OFFSET + (PARENT_SIZE.x + PARENT_GAP) * avaible_slot as f32),
             },
             InLayers::new_single(Layer::Parent),
@@ -270,7 +277,8 @@ fn update_patience(
                 while bar.sections.len() > (parent.patience_timer.fraction_remaining() * BAR_SECTIONS as f32) as usize {
                     bar.sections.pop();
                 }
-                let mut bar_pos = camera.world_to_viewport(camera_trans, trans.translation).unwrap();
+                let bar_trans = trans.translation - Vec3::Y * BAR_OFFSET;
+                let mut bar_pos = camera.world_to_viewport(camera_trans, bar_trans).unwrap();
                 let mut style = styles.get_mut(ui_parent.get()).unwrap();
                 if let Val::Px(w) = style.width {
                     bar_pos.x -= w / 2.0;
@@ -278,7 +286,6 @@ fn update_patience(
                 if let Val::Px(h) = style.height {
                     bar_pos.y -= h / 2.0;
                 }
-                bar_pos.y += BAR_OFFSET;
                 style.left = Val::Px(bar_pos.x);
                 style.top = Val::Px(bar_pos.y);
             }
