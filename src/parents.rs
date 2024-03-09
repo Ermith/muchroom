@@ -100,7 +100,6 @@ fn handle_random_parent_spawning(
     mut timer: ResMut<ParentSpawnTimer>,
     mut parent_queue: ResMut<ParentQueue>,
     textures: Res<TextureAssets>,
-    window_query: Query<&Window>,
     mut bar_materials: ResMut<Assets<ProgressBarMaterial>>,
     animation_assets: Res<AnimationAssets>,
     camera: Query<(&Camera, &GlobalTransform), With<Camera2d>>,
@@ -119,7 +118,6 @@ fn handle_random_parent_spawning(
         timer.0.reset();
 
         let (camera, camera_transform) = camera.single();
-        let window = window_query.single();
         let spawn_x = camera.viewport_to_world_2d(camera_transform, Vec2::new(-PARENT_SIZE.x, 0.0)).unwrap().x;
         let spawn_pos = Vec3::new(
             spawn_x,
