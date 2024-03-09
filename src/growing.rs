@@ -14,6 +14,8 @@ pub struct Growable {
     stage: usize,
     // TODO: add eyes as second item in pair?
     textures: [(Handle<Image>, ); GROW_STAGES],
+    /// Determine if growing is currently stopped.
+    stopped: bool,
 }
 
 impl Growable {
@@ -46,7 +48,7 @@ fn progress_grow(
     mut query: Query<(&mut Growable, &mut Handle<Image>, &mut Draggable, &Child)>
 ) {
     for (mut growable, mut image, mut draggable, child) in &mut query {
-        if growable.stage == GROW_STAGES - 1 {
+        if growable.stopped || growable.stage == GROW_STAGES - 1 {
             continue;
         }
 
