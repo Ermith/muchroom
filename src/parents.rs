@@ -182,9 +182,11 @@ fn read_on_drop_events(
 ) {
     for event in events.read() {
         if let Ok(children) = child_query.get(event.dropped_entity) {
-            let parent = parent_query.get(children.parent_entity).unwrap();
+            if children.parent_entity.index() != event.dropped_on_entity.index() {
+                continue;
+            }
 
-            // TODO: animation?, increase score/currency for succesful raising of child
+            let parent = parent_query.get(children.parent_entity).unwrap();
 
             parent_queue.0[parent.queue_index] = false;
             commands.entity(children.parent_entity).despawn();

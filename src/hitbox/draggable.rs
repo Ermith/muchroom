@@ -34,6 +34,7 @@ pub struct DropBlocker;
 #[derive(Event, Debug)]
 pub struct DropEvent {
     pub dropped_entity: Entity,
+    pub dropped_on_entity: Entity,
 }
 
 pub fn initiate_drag(
@@ -103,9 +104,11 @@ pub fn end_drag(
         let mut is_contained_in_target = dragged_draggable.must_be_contained_in.is_none();
         let mut intersects_with_target = dragged_draggable.must_intersect_with.is_none();
         let mut special_entity_collision = false;
+        let mut target = Entity::PLACEHOLDER;
         for collision in colliding_with {
             if dragged_draggable.special_allowed_entities.contains(collision) {
                 special_entity_collision = true;
+                target = *collision;
                 break;
             }
             if *collision == original_entity { continue };
@@ -123,11 +126,13 @@ pub fn end_drag(
             if let Some(must_be_contained_in) = dragged_draggable.must_be_contained_in.as_ref() {
                 if collided_layers.intersects_layer_set(*must_be_contained_in) && collided_hitbox.contains_entirely(dragged_hitbox, &drag_shadow_transform, &collided_transform) {
                     is_contained_in_target = true;
+                    target = *collision;
                 }
             }
             if let Some(must_intersect_with) = dragged_draggable.must_intersect_with.as_ref() {
                 if collided_layers.intersects_layer_set(*must_intersect_with) && collided_hitbox.intersects(dragged_hitbox, &drag_shadow_transform, &collided_transform) {
                     intersects_with_target = true;
+                    target = *collision;
                 }
             }
         }
@@ -138,7 +143,10 @@ pub fn end_drag(
                 transform.translation = drag_shadow_transform.translation;
                 transform.translation.z = orig_z;
                 draggable.drag_shadow = None;
-                drop_events.send(DropEvent { dropped_entity: original_entity });
+                drop_events.send(DropEvent {
+                    dropped_entity: original_entity,
+                    dropped_on_entity: target,
+                });
             }
         }
         commands.entity(drag_shadow_entity).despawn();
