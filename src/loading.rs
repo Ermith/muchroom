@@ -53,9 +53,6 @@ pub struct TextureAssets {
     pub debug_mushroom: Handle<Image>,
     #[asset(path = "textures/parent_placeholder.png")]
     pub placeholder_parent: Handle<Image>,
-    
-    #[asset(path = "textures/hunger_bubble.png")]
-    pub hunger_bubble: Handle<Image>,
 
 
     #[asset(path = "textures/water_leaf_placeholder.png")]

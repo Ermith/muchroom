@@ -13,9 +13,12 @@ const THIRST_BUBBLE_OFFSET: Vec2 = Vec2::new(-48.0, 48.0);
 const WATER_SOURCE_SPAWN_POS: Vec2 = Vec2::new(750.0, -250.0);
 
 /// Size of food/water.
-const ITEM_SIZE: Vec2 = Vec2::splat(64.0);
+const ITEM_SIZE: Vec2 = Vec2::splat(128.0);
 /// Size of hunger/thirst bubble.
 const BUBBLE_SIZE: Vec2 = Vec2::splat(64.0);
+const SOURCE_SIZE: Vec2 = Vec2::splat(128.0);
+const HITBOX_SIZE: Vec2 = Vec2::splat(128.0);
+
 pub struct NeedsPlugin;
 
 #[derive(Component)]
@@ -62,7 +65,7 @@ fn spawn_bucket(mut commands: Commands, textures: Res<TextureAssets>) {
         SpriteBundle {
             texture: textures.bucket_full.clone(),
             sprite: Sprite {
-                custom_size: Some(Vec2::splat(256.0)),
+                custom_size: Some(SOURCE_SIZE),
                 ..default()
             },
             transform: Transform::from_translation(FOOD_SOURCE_SPAWN_POS.extend(1.0)),
@@ -74,14 +77,14 @@ fn spawn_bucket(mut commands: Commands, textures: Res<TextureAssets>) {
     commands.spawn((
         SpriteBundle {
             texture: textures.worm.clone(),
-            transform: Transform::from_translation(FOOD_SOURCE_SPAWN_POS.extend(0.0)),
+            transform: Transform::from_translation(FOOD_SOURCE_SPAWN_POS.extend(-10.0)),
             sprite: Sprite {
                 custom_size: Some(ITEM_SIZE),
                 ..default()
             },
             ..default()
         },
-        Hitbox::new_centered(ITEM_SIZE),
+        Hitbox::new_centered(HITBOX_SIZE),
         InLayers::new_single(Layer::Tool),
         Draggable {
             must_intersect_with: Some(Layer::Child.into()),
@@ -95,7 +98,7 @@ fn spawn_bucket(mut commands: Commands, textures: Res<TextureAssets>) {
         SpriteBundle {
             texture: textures.placeholder_water_source.clone(),
             sprite: Sprite {
-                custom_size: Some(Vec2::splat(256.0)),
+                custom_size: Some(SOURCE_SIZE),
                 ..default()
             },
             transform: Transform::from_translation(WATER_SOURCE_SPAWN_POS.extend(1.0)),
@@ -107,14 +110,14 @@ fn spawn_bucket(mut commands: Commands, textures: Res<TextureAssets>) {
     commands.spawn((
         SpriteBundle {
             texture: textures.placeholder_water.clone(),
-            transform: Transform::from_translation(WATER_SOURCE_SPAWN_POS.extend(0.0)),
+            transform: Transform::from_translation(WATER_SOURCE_SPAWN_POS.extend(-10.0)),
             sprite: Sprite {
                 custom_size: Some(ITEM_SIZE),
                 ..default()
             },
             ..default()
         },
-        Hitbox::new_centered(ITEM_SIZE),
+        Hitbox::new_centered(HITBOX_SIZE),
         InLayers::new_single(Layer::Tool),
         Draggable {
             must_intersect_with: Some(Layer::Child.into()),
@@ -139,7 +142,7 @@ fn handle_needs_decrease(
         if needs.hunger < 0.0 && needs.hunger_bubble.is_none() {
             needs.hunger_bubble = Some(commands.spawn(
                 SpriteBundle {
-                    texture: textures.hunger_bubble.clone(),
+                    texture: textures.bubble_worm.clone(),
                     transform: Transform::from_translation(HUNGER_BUBBLE_OFFSET.extend(1.0)),
                     sprite: Sprite {
                         custom_size: Some(BUBBLE_SIZE),
@@ -181,7 +184,7 @@ fn read_on_drop_events(
 ) {
     for event in events.read() {
         if let Ok(mut transform) = food_query.get_mut(event.dropped_entity) {
-            transform.translation = FOOD_SOURCE_SPAWN_POS.extend(1.0);
+            transform.translation = FOOD_SOURCE_SPAWN_POS.extend(-10.0);
 
             let mut needs = child_query.get_mut(event.dropped_on_entity).unwrap();
 
@@ -195,7 +198,7 @@ fn read_on_drop_events(
         }
 
         if let Ok(mut transform) = water_query.get_mut(event.dropped_entity) {
-            transform.translation = WATER_SOURCE_SPAWN_POS.extend(1.0);
+            transform.translation = WATER_SOURCE_SPAWN_POS.extend(-10.0);
 
             let mut needs = child_query.get_mut(event.dropped_on_entity).unwrap();
 
