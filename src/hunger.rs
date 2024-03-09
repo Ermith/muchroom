@@ -38,22 +38,26 @@ impl Default for Hunger {
 fn spawn_bucket(mut commands: Commands, textures: Res<TextureAssets>) {
     commands.spawn((
         SpriteBundle {
-            texture: textures.placeholder_bucket.clone(),
+            texture: textures.bucket_full.clone(),
+            sprite: Sprite {
+                custom_size: Some(Vec2::splat(128.0)),
+                ..default()
+            },
             transform: Transform::from_translation(BUCKET_SPAWN_POS.extend(1.0)),
             ..default()
         },
     ));
     commands.spawn((
         SpriteBundle {
-            texture: textures.placeholder_food.clone(),
-            transform: Transform::from_translation(BUCKET_SPAWN_POS.extend(1.0)),
+            texture: textures.worm.clone(),
+            transform: Transform::from_translation(BUCKET_SPAWN_POS.extend(-10.0)),
             sprite: Sprite {
-                custom_size: Some(Vec2::splat(32.0)),
+                custom_size: Some(Vec2::splat(128.0)),
                 ..default()
             },
             ..default()
         },
-        Hitbox::new_centered(Vec2::splat(32.0)),
+        Hitbox::new_centered(Vec2::splat(128.0)),
         InLayers::new_single(Layer::Tool),
         Draggable {
             must_intersect_with: Some(Layer::Child.into()),
@@ -114,7 +118,7 @@ fn read_on_drop_events(
         }
 
         if let Ok(mut transform) = food_query.get_mut(event.dropped_entity) {
-            transform.translation = BUCKET_SPAWN_POS.extend(1.0);
+            transform.translation = BUCKET_SPAWN_POS.extend(-10.0);
 
             let mut hunger = child_query.get_mut(event.dropped_on_entity).unwrap();
 
