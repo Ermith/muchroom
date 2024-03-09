@@ -96,7 +96,7 @@ fn spawn_bucket(mut commands: Commands, textures: Res<TextureAssets>) {
     // spawn water source
     commands.spawn((
         SpriteBundle {
-            texture: textures.placeholder_water_source.clone(),
+            texture: textures.bucket_water_leaves.clone(),
             sprite: Sprite {
                 custom_size: Some(SOURCE_SIZE),
                 ..default()
@@ -109,7 +109,7 @@ fn spawn_bucket(mut commands: Commands, textures: Res<TextureAssets>) {
     // spawn water into water source
     commands.spawn((
         SpriteBundle {
-            texture: textures.placeholder_water.clone(),
+            texture: textures.water_leaves.clone(),
             transform: Transform::from_translation(WATER_SOURCE_SPAWN_POS.extend(-10.0)),
             sprite: Sprite {
                 custom_size: Some(ITEM_SIZE),
@@ -163,7 +163,7 @@ fn handle_needs_decrease(
         if needs.thirst < 0.0 && needs.thirst_bubble.is_none() {
             needs.thirst_bubble = Some(commands.spawn(
                 SpriteBundle {
-                    texture: textures.placeholder_thirst_bubble.clone(),
+                    texture: textures.bubble_water.clone(),
                     transform: Transform::from_translation(THIRST_BUBBLE_OFFSET.extend(1.0)),
                     sprite: Sprite {
                         custom_size: Some(BUBBLE_SIZE),
