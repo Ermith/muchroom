@@ -8,6 +8,7 @@ mod player;
 mod hitbox;
 mod growing;
 mod parents;
+mod garden;
 
 use crate::actions::ActionsPlugin;
 use crate::audio::InternalAudioPlugin;
@@ -17,6 +18,9 @@ use crate::player::PlayerPlugin;
 use crate::hitbox::HitboxPlugin;
 use crate::growing::GrowingPlugin;
 use crate::parents::ParentsPlugin;
+use crate::garden::GardenPlugin;
+
+
 
 use bevy::app::App;
 #[cfg(debug_assertions)]
@@ -44,6 +48,7 @@ impl Plugin for GamePlugin {
         app.init_state::<GameState>().add_plugins((
             LoadingPlugin,
             MenuPlugin,
+            GardenPlugin,
             ActionsPlugin,
             InternalAudioPlugin,
             PlayerPlugin,
