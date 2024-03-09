@@ -13,14 +13,17 @@ impl Plugin for HitboxPlugin {
             .add_systems(PreUpdate, super::mouse::mouse_coords_system)
             .add_event::<CollisionEvent>()
             .add_systems(PreUpdate, emit_collision_events)
+            .add_event::<DropEvent>()
             .add_systems(Update, (initiate_drag, update_drag, end_drag));
         if cfg!(debug_assertions) {
             // H to toggle hitbox gizmos
             app
                 .add_systems(OnEnter(GameState::Playing), debug_spawn_sample_stuff) // TODO: remove
                 .init_gizmo_group::<HitboxGizmos>()
-                .add_systems(Update, (draw_hitbox_gizmos, update_hitbox_gizmos_config));
                 // .add_systems(Update, log_collision_events);
+                // .add_systems(Update, log_drop_events)
+                .add_systems(Update, (draw_hitbox_gizmos, update_hitbox_gizmos_config));
+
         }
     }
 }
@@ -114,6 +117,15 @@ fn log_collision_events(
 ) {
     for event in events.read() {
         info!("Collision: {:?} -> {:?}", event.collider, event.collidee);
+    }
+}
+
+#[allow(dead_code)]
+fn log_drop_events(
+    mut events: EventReader<DropEvent>,
+) {
+    for event in events.read() {
+        info!("Drop: {:?}", event.dropped_entity);
     }
 }
 
