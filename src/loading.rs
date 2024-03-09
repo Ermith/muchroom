@@ -41,4 +41,12 @@ pub struct TextureAssets {
     
     #[asset(path = "textures/mushrooms/derp/derp_spores.png")]
     pub derp_spores: Handle<Image>,
+    #[asset(path = "textures/mushrooms/derp/derp_baby_body.png")]
+    pub derp_baby_body: Handle<Image>,
+    #[asset(path = "textures/mushrooms/derp/derp_child_body.png")]
+    pub derp_child_body: Handle<Image>,
+    #[asset(path = "textures/mushrooms/derp/derp_teenager_body.png")]
+    pub derp_teenager_body: Handle<Image>,
+    #[asset(path = "textures/mushrooms/derp/derp_parent_body.png")]
+    pub derp_parent_body: Handle<Image>,
 }

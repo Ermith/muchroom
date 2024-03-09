@@ -4,7 +4,7 @@ use rand::prelude::*;
 
 use bevy::prelude::*;
 
-use crate::{hitbox::*, loading::TextureAssets, GameState};
+use crate::{growing::Growable, hitbox::*, loading::TextureAssets, GameState};
 
 pub const MAX_PARENTS: usize = 5;
 pub const MIN_PARENT_SPAWN_TIME: f32 = 10.0;
@@ -145,6 +145,8 @@ fn move_walkers(
                 },
                 Hitbox::new_centered(Vec2::splat(32.0)),
                 EmitsCollisions::default(),
+                // TODO: add growable component when spores are moved to garden.
+                //Growable::Derp(&textures)
                 //Draggable::default(),
             ));
         }
