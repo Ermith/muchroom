@@ -8,8 +8,8 @@ use crate::{child::Child, growing::Growable, hitbox::*, needs::*, loading::*, Ga
 use crate::animations::Animation;
 
 pub const MAX_PARENTS: usize = 5;
-pub const MIN_PARENT_SPAWN_TIME: f32 = 1.0;
-pub const MAX_PARENT_SPAWN_TIME: f32 = 3.0;
+pub const MIN_PARENT_SPAWN_TIME: f32 = 10.0;
+pub const MAX_PARENT_SPAWN_TIME: f32 = 30.0;
 
 // Maybe in future replace with texture size?
 pub const PARENT_SIZE: Vec2 = Vec2::new(128.0, 256.0);
@@ -38,6 +38,8 @@ const FLOATY_COLOR_SCALE: f32 = 0.03;
 const BAR_SECTIONS: usize = 200;
 /// Height of patience bar in pixels.
 const BAR_HEIGHT: f32 = 20.0;
+/// Width of the patience bar in pixels.
+const BAR_WIDTH: f32 = PARENT_SIZE.x - 20.0;
 /// Y offset of patience bar from parent.
 const BAR_OFFSET: f32 = 70.0;
 
@@ -145,16 +147,16 @@ fn handle_random_parent_spawning(
         bar_bar.set_progress(1.0);
         let bar_style = Style {
             position_type: PositionType::Absolute,
-            width: Val::Vw((PARENT_SIZE.x - 4.0) / 1920.0 * 100.0),
-            height: Val::Vh((BAR_HEIGHT - 4.0) / 1080.0 * 100.0),
+            width: Val::Vw((BAR_WIDTH - 4.0) / crate::WINDOW_WIDTH * 100.0),
+            height: Val::Vh((BAR_HEIGHT - 4.0) / crate::WINDOW_HEIGHT * 100.0),
             ..bevy_utils::default()
         };
 
         let bar_container = commands.spawn(NodeBundle {
             style: Style {
                 position_type: PositionType::Absolute,
-                width: Val::Vw(PARENT_SIZE.x / 1920.0 * 100.0),
-                height: Val::Vh(BAR_HEIGHT / 1080.0 * 100.0),
+                width: Val::Vw(BAR_WIDTH / crate::WINDOW_WIDTH * 100.0),
+                height: Val::Vh(BAR_HEIGHT / crate::WINDOW_HEIGHT * 100.0),
                 top: Val::Px(BAR_OFFSET),
                 border: UiRect::all(Val::Px(2.)),
                 ..bevy_utils::default()
@@ -206,7 +208,7 @@ fn handle_random_parent_spawning(
 
         let animation_eyes = commands.spawn((
             SpriteBundle {
-                transform: Transform::from_scale(Vec3::new(0.2,0.2,0.2)),
+                transform: Transform::from_scale(Vec3::new(0.2,0.2, 0.2)).with_translation(Vec3::new(0.0, 0.0, 0.1)),
                 texture: textures.bevy.clone(),
                 ..default()
             },
@@ -257,6 +259,7 @@ fn move_walkers(
                     parent_entity: entity,
                 },
                 Needs::default(),
+                DropBlocker,
             ));
         }
     }
@@ -264,27 +267,30 @@ fn move_walkers(
 
 fn update_patience(
     time: Res<Time>,
-    mut query: Query<(&mut Parent, &Transform, Option<&HasPatienceBar>)>,
+    mut query: Query<(&mut Parent, &Transform, Option<&HasPatienceBar>, Option<&Walker>)>,
     mut bars: Query<(&mut ProgressBar, &bevy::prelude::Parent), (With<PatienceBar>, Without<Parent>)>,
     mut styles: Query<&mut Style, (Without<Parent>, Without<ProgressBar>)>,
     camera: Query<(&Camera, &GlobalTransform), (With<Camera2d>, Without<Parent>, Without<PatienceBar>)>,
 ) {
     // moving the bar really shouldn't be here but I'm too lazy to refactor it
     let (camera, camera_trans) = camera.single();
-    for (mut parent, trans, patience_bar) in &mut query {
+    for (mut parent, trans, patience_bar, walker) in &mut query {
         if let Some(patience_bar) = patience_bar {
             if let Ok((mut bar, ui_parent)) = bars.get_mut(patience_bar.0) {
                 bar.set_progress(parent.patience_timer.fraction_remaining());
                 while bar.sections.len() > (parent.patience_timer.fraction_remaining() * BAR_SECTIONS as f32) as usize {
                     bar.sections.pop();
                 }
-                let bar_trans = trans.translation - Vec3::Y * BAR_OFFSET - Vec3::new(PARENT_SIZE.x / 2.0, BAR_HEIGHT / 2.0, 0.0);
+                let bar_trans = trans.translation - Vec3::Y * BAR_OFFSET - Vec3::new(BAR_WIDTH / 2.0, BAR_HEIGHT / 2.0, 0.0);
                 let bar_pos = camera.world_to_viewport(camera_trans, bar_trans).unwrap();
                 let mut style = styles.get_mut(ui_parent.get()).unwrap();
                 style.left = Val::Px(bar_pos.x);
                 style.top = Val::Px(bar_pos.y);
             }
         }
+
+        // no impatience until you arrive
+        if walker.is_some() { continue };
 
         parent.patience_timer.tick(time.delta());
 
@@ -314,13 +320,13 @@ fn read_on_drop_events(
             let (parent, maybe_bar) = parent_query.get(children.parent_entity).unwrap();
 
             parent_queue.0[parent.queue_index] = false;
-            commands.entity(children.parent_entity).despawn();
-            commands.entity(event.dropped_entity).despawn();
+            commands.entity(children.parent_entity).despawn_recursive();
+            commands.entity(event.dropped_entity).despawn_recursive();
 
             if let Some(bar) = maybe_bar {
                 let (_, bar_parent_border) = bars.get(bar.0).unwrap();
-                commands.entity(bar_parent_border.get()).despawn();
-                commands.entity(bar.0).despawn();
+                commands.entity(bar_parent_border.get()).despawn_recursive();
+                commands.entity(bar.0).despawn_recursive();
             }
         }
     }

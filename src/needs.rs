@@ -13,10 +13,9 @@ const THIRST_BUBBLE_OFFSET: Vec2 = Vec2::new(-48.0, 48.0);
 const WATER_SOURCE_SPAWN_POS: Vec2 = Vec2::new(750.0, -250.0);
 
 /// Size of food/water.
-const ITEM_SIZE: Vec2 = Vec2::splat(32.0);
+const ITEM_SIZE: Vec2 = Vec2::splat(64.0);
 /// Size of hunger/thirst bubble.
 const BUBBLE_SIZE: Vec2 = Vec2::splat(64.0);
-
 pub struct NeedsPlugin;
 
 #[derive(Component)]
@@ -61,7 +60,11 @@ fn spawn_bucket(mut commands: Commands, textures: Res<TextureAssets>) {
     // spawn food source
     commands.spawn((
         SpriteBundle {
-            texture: textures.placeholder_bucket.clone(),
+            texture: textures.bucket_full.clone(),
+            sprite: Sprite {
+                custom_size: Some(Vec2::splat(256.0)),
+                ..default()
+            },
             transform: Transform::from_translation(FOOD_SOURCE_SPAWN_POS.extend(1.0)),
             ..default()
         },
@@ -70,7 +73,7 @@ fn spawn_bucket(mut commands: Commands, textures: Res<TextureAssets>) {
     // spawn food into food source
     commands.spawn((
         SpriteBundle {
-            texture: textures.placeholder_food.clone(),
+            texture: textures.worm.clone(),
             transform: Transform::from_translation(FOOD_SOURCE_SPAWN_POS.extend(0.0)),
             sprite: Sprite {
                 custom_size: Some(ITEM_SIZE),
@@ -91,6 +94,10 @@ fn spawn_bucket(mut commands: Commands, textures: Res<TextureAssets>) {
     commands.spawn((
         SpriteBundle {
             texture: textures.placeholder_water_source.clone(),
+            sprite: Sprite {
+                custom_size: Some(Vec2::splat(256.0)),
+                ..default()
+            },
             transform: Transform::from_translation(WATER_SOURCE_SPAWN_POS.extend(1.0)),
             ..default()
         },

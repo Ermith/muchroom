@@ -40,6 +40,10 @@ pub struct TextureAssets {
     pub bucket_full: Handle<Image>,
     #[asset(path = "textures/garden/bucket_empty.png")]
     pub bucket_empty: Handle<Image>,
+    #[asset(path = "textures/garden/worm.png")]
+    pub worm: Handle<Image>,
+    #[asset(path = "textures/garden/bubble_worm.png")]
+    pub bubble_worm: Handle<Image>,
 
     #[asset(path = "textures/bevy.png")]
     pub bevy: Handle<Image>,
@@ -52,10 +56,6 @@ pub struct TextureAssets {
     
     #[asset(path = "textures/hunger_bubble.png")]
     pub hunger_bubble: Handle<Image>,
-    #[asset(path = "textures/bucket_placeholder.png")]
-    pub placeholder_bucket: Handle<Image>,
-    #[asset(path = "textures/food_placeholder.png")]
-    pub placeholder_food: Handle<Image>,
 
 
     #[asset(path = "textures/water_leaf_placeholder.png")]
