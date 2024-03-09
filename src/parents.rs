@@ -8,8 +8,8 @@ use crate::{child::Child, growing::Growable, hitbox::*, hunger::Hunger, loading:
 use crate::animations::Animation;
 
 pub const MAX_PARENTS: usize = 13;
-pub const MIN_PARENT_SPAWN_TIME: f32 = 10.0;
-pub const MAX_PARENT_SPAWN_TIME: f32 = 30.0;
+pub const MIN_PARENT_SPAWN_TIME: f32 = 1.0;
+pub const MAX_PARENT_SPAWN_TIME: f32 = 3.0;
 
 // Maybe in future replace with texture size?
 pub const PARENT_SIZE: Vec2 = Vec2::new(128.0, 256.0);
@@ -104,11 +104,15 @@ fn handle_random_parent_spawning(
     animation_assets: Res<AnimationAssets>,
     camera: Query<(&Camera, &GlobalTransform), With<Camera2d>>,
 ) {
-    let avaible_slot = parent_queue.0.iter().position(|&slot| !slot);
-    if avaible_slot.is_none() {
-        return;
-    }
-    let avaible_slot = avaible_slot.unwrap();
+    let available_slots_indices = parent_queue.0.iter().enumerate().filter_map(|(i, &slot)| if !slot { Some(i) } else { None }).collect::<Vec<_>>();
+    if available_slots_indices.is_empty() { return; }
+    let fraction_empty: f64 = available_slots_indices.len() as f64 / MAX_PARENTS as f64;
+    let pick_first = thread_rng().gen_bool(fraction_empty * fraction_empty);
+    let picked_slot = if pick_first {
+        available_slots_indices.first().copied().unwrap()
+    } else {
+        available_slots_indices.choose(&mut rand::thread_rng()).copied().unwrap()
+    };
 
     timer.0.tick(time.delta());
     if timer.0.just_finished() || parent_queue.0.iter().all(|&slot| !slot) {
@@ -124,7 +128,7 @@ fn handle_random_parent_spawning(
             PARENT_SPAWN_Y,
             1.0
         );
-        parent_queue.0[avaible_slot] = true;
+        parent_queue.0[picked_slot] = true;
 
         let mut floaty_shift = Vec3::new(0.0, 0.0, 0.0);
         let bar_colors = (0..BAR_SECTIONS).map(|i| {
@@ -179,7 +183,7 @@ fn handle_random_parent_spawning(
         t.scale = Vec3::new(0.1, 0.1, 0.1);
         let parent = commands.spawn((
             Parent {
-                queue_index: avaible_slot,
+                queue_index: picked_slot,
                 ..default()
             },
             SpatialBundle {
@@ -188,7 +192,7 @@ fn handle_random_parent_spawning(
             },
             Walker {
                 destination: Vec2::new(PARENT_QUEUE_X, PARENT_SPAWN_Y)
-                    + Vec2::X * ((PARENT_SIZE.x + PARENT_GAP) * avaible_slot as f32),
+                    + Vec2::X * ((PARENT_SIZE.x + PARENT_GAP) * picked_slot as f32),
             },
             InLayers::new_single(Layer::Parent),
             HasPatienceBar(patience_bar),
