@@ -150,7 +150,7 @@ fn handle_random_parent_spawning(
         let spawn_pos = Vec3::new(
             spawn_x,
             PARENT_SPAWN_Y,
-            1.0
+            50.0
         );
         parent_queue.0[picked_slot] = true;
 
