@@ -37,7 +37,7 @@ pub struct Parent {
 #[derive(Component)]
 #[component(storage = "SparseSet")]
 /// Walks to destination. Upon reaching destination this component is removed.
-struct PathWalker {
+struct Walker {
     destination: Vec2,
 }
 
@@ -110,7 +110,7 @@ fn handle_random_parent_spawning(
                 transform: Transform::from_translation(spawn_pos),
                 ..default()
             },
-            PathWalker {
+            Walker {
                 destination: spawn_pos.xy() 
                     + Vec2::X * (PARENT_QUEUE_OFFSET + (PARENT_SIZE.x + PARENT_GAP) * avaible_slot as f32),
             },
@@ -123,7 +123,7 @@ fn move_walkers(
     mut commands: Commands, 
     time: Res<Time>, 
     textures: Res<TextureAssets>,
-    mut query: Query<(Entity, &mut Transform, &PathWalker)>
+    mut query: Query<(Entity, &mut Transform, &Walker)>
 ) {
     for (entity, mut transform, walker) in &mut query {
         let direction = (walker.destination.extend(0.0) - transform.translation).normalize();
@@ -131,7 +131,7 @@ fn move_walkers(
 
         if Vec2::distance(transform.translation.xy(), walker.destination) < PARENT_WALK_SPEED * time.delta_seconds() {
             transform.translation = walker.destination.extend(0.0);
-            commands.entity(entity).remove::<PathWalker>();
+            commands.entity(entity).remove::<Walker>();
 
             commands.entity(entity).insert(Hitbox::new_centered(Vec2::splat(128.0)));
 
