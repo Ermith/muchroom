@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{loading::TextureAssets, GameState};
+use crate::{hitbox::DropEvent, loading::TextureAssets, child::Child, GameState};
 
 pub const GROW_SPEED: f32 = 1.0;
 pub const GROW_DURATION: f32 = 5.0;
@@ -33,7 +33,10 @@ impl Growable {
 
 impl Plugin for GrowingPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, progress_grow.run_if(in_state(GameState::Playing)));
+        app.add_systems(Update, (
+            progress_grow,
+            read_on_drop_events,
+        ).run_if(in_state(GameState::Playing)));
     }
 }
 
@@ -51,5 +54,20 @@ fn progress_grow(time: Res<Time>, mut query: Query<(&mut Growable, &mut Handle<I
 
             *image = growable.textures[growable.stage].0.clone();
         }
+    }
+}
+
+fn read_on_drop_events(
+    mut commands: Commands,
+    mut events: EventReader<DropEvent>,
+    textures: Res<TextureAssets>,
+    query: Query<&Child, Without<Growable>>
+) {
+    for event in events.read() {
+        if !query.get(event.dropped_entity).is_ok() {
+            continue;
+        }
+
+        commands.entity(event.dropped_entity).insert(Growable::derp(&textures));
     }
 }

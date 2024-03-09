@@ -10,5 +10,5 @@ mod layer;
 pub use hitbox::Hitbox;
 pub use collisions::{EmitsCollisions, CollisionEvent};
 pub use plugin::HitboxPlugin;
-pub use draggable::{Draggable, DragShadow, DropBlocker};
+pub use draggable::{Draggable, DragShadow, DropBlocker, DropEvent};
 pub use layer::*;

@@ -8,6 +8,7 @@ mod player;
 mod hitbox;
 mod growing;
 mod parents;
+mod child;
 
 use crate::actions::ActionsPlugin;
 use crate::audio::InternalAudioPlugin;

@@ -4,7 +4,7 @@ use rand::prelude::*;
 
 use bevy::prelude::*;
 
-use crate::{hitbox::*, loading::TextureAssets, GameState};
+use crate::{child::Child, hitbox::*, loading::TextureAssets, GameState};
 
 pub const MAX_PARENTS: usize = 5;
 pub const MIN_PARENT_SPAWN_TIME: f32 = 10.0;
@@ -156,6 +156,7 @@ fn move_walkers(
                     ..default()
                 },
                 InLayers::new_single(Layer::Child),
+                Child
             ));
         }
     }
