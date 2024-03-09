@@ -40,6 +40,16 @@ impl Hitbox {
     }
 
     #[allow(dead_code)]
+    pub fn contains_entirely(&self, other: &Hitbox, transform: &Transform, other_transform: &Transform) -> bool {
+        let world_rect = self.world_rect(transform);
+        let other_world_rect = other.world_rect(other_transform);
+        world_rect.min.x <= other_world_rect.min.x &&
+            world_rect.min.y <= other_world_rect.min.y &&
+            world_rect.max.x >= other_world_rect.max.x &&
+            world_rect.max.y >= other_world_rect.max.y
+    }
+
+    #[allow(dead_code)]
     pub fn offset(&self) -> Vec2 {
         self.rect.min
     }

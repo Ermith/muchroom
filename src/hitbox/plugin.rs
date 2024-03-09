@@ -30,6 +30,20 @@ fn debug_spawn_sample_stuff(
     textures: Res<crate::loading::TextureAssets>,
     assets: Res<Assets<Image>>,
 ) {
+    let special_test_mushroom = commands.spawn((
+        SpriteBundle {
+            sprite: Sprite {
+                color: Color::rgba(1.0, 0.0, 0.0, 1.0),
+                ..Default::default()
+            },
+            transform: Transform::from_translation(Vec3::new(200.0, 0.0, 0.0)),
+            texture: textures.debug_mushroom.clone(),
+            ..Default::default()
+        },
+        Hitbox::new_centered(assets.get(&textures.debug_mushroom).unwrap().size().as_vec2()),
+        InLayers::new_single(Layer::Parent),
+    )).id();
+
     for _ in 0..10 {
         let x = rand::random::<f32>() * 800.0 - 400.0;
         let y = rand::random::<f32>() * 600.0 - 300.0;
@@ -43,12 +57,27 @@ fn debug_spawn_sample_stuff(
             },
             Hitbox::new_centered(image_dim.as_vec2()),
             EmitsCollisions::default(),
-            Draggable::default(),
+            Draggable {
+                must_be_contained_in: Some(Layer::Garden.into()),
+                special_allowed_entities: vec![special_test_mushroom],
+                ..Default::default()
+            },
+            InLayers::new_single(Layer::Child),
         ));
         if rand::random::<f32>() < 0.5 {
             spawn.insert(DropBlocker);
         }
     }
+
+    commands.spawn((
+        SpriteBundle {
+            transform: Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)),
+            texture: textures.github.clone(),
+            ..Default::default()
+        },
+        Hitbox::new_centered(assets.get(&textures.github).unwrap().size().as_vec2()),
+        InLayers::new_single(Layer::Garden),
+    ));
 }
 
 fn emit_collision_events(
