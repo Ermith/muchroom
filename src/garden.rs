@@ -6,8 +6,7 @@ pub struct GardenPlugin;
 impl Plugin for GardenPlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_systems(OnEnter(GameState::Playing), 
-                setup_garden_background.run_if(in_state(GameState::Playing)));
+            .add_systems(OnEnter(GameState::Playing), setup_garden_background);
     }
 }
 
@@ -25,6 +24,8 @@ fn setup_garden_background(
                 transform: Transform::from_xyz(0., 0., -5.0),
                 ..default()
             },
-            Garden
+            Garden,
+            crate::hitbox::Hitbox::new(Rect::new(-900.0,  -500.0, 600.0, 270.0)),
+            crate::hitbox::InLayers::new_single(crate::hitbox::Layer::Garden),
         ));
 }

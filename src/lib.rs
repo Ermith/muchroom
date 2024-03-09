@@ -1,5 +1,6 @@
 #![allow(clippy::type_complexity)]
 
+mod animations;
 mod actions;
 mod audio;
 mod loading;
@@ -14,11 +15,12 @@ mod camera;
 mod world;
 mod hunger;
 
+use crate::animations::AnimationsPlugin;
 use crate::actions::ActionsPlugin;
 use crate::audio::InternalAudioPlugin;
 use crate::loading::LoadingPlugin;
 use crate::menu::MenuPlugin;
-use crate::player::PlayerPlugin;
+// use crate::player::PlayerPlugin;
 use crate::hitbox::HitboxPlugin;
 use crate::growing::GrowingPlugin;
 use crate::parents::ParentsPlugin;
@@ -60,11 +62,13 @@ impl Plugin for GamePlugin {
             camera::CameraPlugin {
                 scaling_mode: camera::CameraScalingMode::FitBoth,
             },
+            bevy_progressbar::ProgressBarPlugin,
             MenuPlugin,
             GardenPlugin,
             ActionsPlugin,
+            AnimationsPlugin,
             InternalAudioPlugin,
-            PlayerPlugin,
+            // PlayerPlugin,
             HitboxPlugin,
             GrowingPlugin,
             ParentsPlugin,
