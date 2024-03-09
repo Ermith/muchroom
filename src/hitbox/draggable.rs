@@ -51,7 +51,7 @@ pub fn initiate_drag(
 
     for (entity, transform, hitbox, mut draggable, image, sprite) in query.iter_mut() {
         if hitbox.world_rect(transform).contains(mouse_pos) {
-            let offset = transform.translation.truncate() - mouse_pos;
+            let offset = Vec2::ZERO; //transform.translation.truncate() - mouse_pos;
             let drag_shadow_entity = commands.spawn((
                 DragShadow {
                     offset,
@@ -103,6 +103,7 @@ pub fn end_drag(
         let mut intersects_with_target = dragged_draggable.must_intersect_with.is_none();
         let mut special_entity_collision = false;
         let mut target = Entity::PLACEHOLDER;
+        let mut target_position = Vec3::ZERO;
         for collision in colliding_with {
             if dragged_draggable.special_allowed_entities.contains(collision) {
                 special_entity_collision = true;
@@ -124,13 +125,33 @@ pub fn end_drag(
             if let Some(must_be_contained_in) = dragged_draggable.must_be_contained_in.as_ref() {
                 if collided_layers.intersects_layer_set(*must_be_contained_in) && collided_hitbox.contains_entirely(dragged_hitbox, &collided_transform, &drag_shadow_transform) {
                     is_contained_in_target = true;
-                    target = *collision;
+                    if target == Entity::PLACEHOLDER {
+                        target = *collision;
+                        target_position = collided_transform.translation;
+                    } else {
+                        let current_distance = (drag_shadow_transform.translation - target_position).length();
+                        let new_distance = (drag_shadow_transform.translation - collided_transform.translation).length();
+                        if new_distance < current_distance {
+                            target = *collision;
+                            target_position = collided_transform.translation;
+                        }
+                    }
                 }
             }
             if let Some(must_intersect_with) = dragged_draggable.must_intersect_with.as_ref() {
                 if collided_layers.intersects_layer_set(*must_intersect_with) && collided_hitbox.intersects(dragged_hitbox, &collided_transform, &drag_shadow_transform) {
                     intersects_with_target = true;
-                    target = *collision;
+                    if target == Entity::PLACEHOLDER {
+                        target = *collision;
+                        target_position = collided_transform.translation;
+                    } else {
+                        let current_distance = (drag_shadow_transform.translation - target_position).length();
+                        let new_distance = (drag_shadow_transform.translation - collided_transform.translation).length();
+                        if new_distance < current_distance {
+                            target = *collision;
+                            target_position = collided_transform.translation;
+                        }
+                    }
                 }
             }
         }
