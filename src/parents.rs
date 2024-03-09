@@ -89,6 +89,8 @@ impl Plugin for ParentsPlugin {
                 )
             ))
             .init_resource::<ParentQueue>()
+            .add_systems(OnEnter(GameState::Playing), cleanup_parent_system)
+            .add_systems(OnExit(GameState::Playing), cleanup_parent_system) // better safe than sorry
             .add_systems(Update, (
                 handle_random_parent_spawning,
                 move_walkers,
@@ -116,6 +118,14 @@ pub struct PatienceBar;
 
 #[derive(Component, Debug)]
 pub struct HasPatienceBar(Entity);
+
+fn cleanup_parent_system(
+    mut parent_queue: ResMut<ParentQueue>,
+    mut parent_spawn_timer: ResMut<ParentSpawnTimer>,
+) {
+    parent_queue.0 = [false; MAX_PARENTS];
+    parent_spawn_timer.0.reset();
+}
 
 fn handle_random_parent_spawning(
     mut commands: Commands,
