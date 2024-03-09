@@ -39,6 +39,7 @@ fn setup_menu(
     mut commands: Commands,
     textures: Res<TextureAssets>,
     game_state: Res<State<GameState>>,
+    score: Res<crate::score::Score>,
 ) {
     info!("menu");
 
@@ -76,6 +77,30 @@ fn setup_menu(
                     },
                 ),
             ));
+            if game_state == &GameState::GameOver {
+                children.spawn(NodeBundle {
+                    style: Style {
+                        height: Val::Px(20.0),
+                        ..default()
+                    },
+                    ..default()
+                });
+                let text = if score.0 == 1 {
+                    "You managed to take care of only one fungus!".to_string()
+                } else {
+                    format!("You managed to take care of {} fungi!", score.0)
+                };
+                children.spawn(( 
+                    TextBundle::from_section(
+                        text,
+                        TextStyle {
+                            font_size: 40.0,
+                            color: Color::rgb(0.9, 0.9, 0.9),
+                            ..default()
+                        },
+                    ),
+                ));
+            }
             // spacing
             children.spawn(NodeBundle {
                 style: Style {

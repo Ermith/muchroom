@@ -18,6 +18,7 @@ mod game_object;
 mod highlight;
 #[cfg(debug_assertions)]
 mod cheats;
+mod score;
 
 use crate::animations::AnimationsPlugin;
 use crate::actions::ActionsPlugin;
@@ -35,6 +36,7 @@ pub use crate::game_object::GameObject;
 use crate::highlight::HighlightPlugin;
 #[cfg(debug_assertions)]
 use crate::cheats::CheatsPlugin;
+use crate::score::ScorePlugin;
 
 pub const WINDOW_WIDTH: f32 = 1920.0;
 pub const WINDOW_HEIGHT: f32 = 1080.0;
@@ -98,8 +100,10 @@ impl Plugin for GamePlugin {
             NeedsPlugin,
             HighlightPlugin,
             #[cfg(debug_assertions)]
-            CheatsPlugin,
-        ));
+            CheatsPlugin))
+            .add_plugins(( // gotta split it in two because of how traits can't be generic over arbitrarily long tuples currently so there's a limit
+            ScorePlugin,
+        )); 
 
         #[cfg(debug_assertions)]
         {

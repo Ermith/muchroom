@@ -485,6 +485,7 @@ fn read_on_drop_events(
     child_query: Query<&Child, With<Growable>>,
     parent_query: Query<(&Parent, Option<&HasPatienceBar>)>,
     bars: Query<(&ProgressBar, &bevy::prelude::Parent)>,
+    mut score: ResMut<crate::score::Score>,
 ) {
     for event in events.read() {
         if let Ok(children) = child_query.get(event.dropped_entity) {
@@ -503,6 +504,8 @@ fn read_on_drop_events(
                 commands.entity(bar_parent_border.get()).despawn_recursive();
                 commands.entity(bar.0).despawn_recursive();
             }
+
+            score.0 += 1;
         }
     }
 }
