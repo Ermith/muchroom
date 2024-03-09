@@ -319,13 +319,13 @@ fn read_on_drop_events(
             let (parent, maybe_bar) = parent_query.get(children.parent_entity).unwrap();
 
             parent_queue.0[parent.queue_index] = false;
-            commands.entity(children.parent_entity).despawn();
-            commands.entity(event.dropped_entity).despawn();
+            commands.entity(children.parent_entity).despawn_recursive();
+            commands.entity(event.dropped_entity).despawn_recursive();
 
             if let Some(bar) = maybe_bar {
                 let (_, bar_parent_border) = bars.get(bar.0).unwrap();
-                commands.entity(bar_parent_border.get()).despawn();
-                commands.entity(bar.0).despawn();
+                commands.entity(bar_parent_border.get()).despawn_recursive();
+                commands.entity(bar.0).despawn_recursive();
             }
         }
     }
