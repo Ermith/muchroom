@@ -7,7 +7,7 @@ use bevy_progressbar::{ProgressBar, ProgressBarBundle, ProgressBarMaterial};
 use crate::{child::Child, growing::Growable, hitbox::*, hunger::Hunger, loading::{AnimationAssets, TextureAssets}, GameState};
 use crate::animations::Animation;
 
-pub const MAX_PARENTS: usize = 5;
+pub const MAX_PARENTS: usize = 13;
 pub const MIN_PARENT_SPAWN_TIME: f32 = 10.0;
 pub const MAX_PARENT_SPAWN_TIME: f32 = 30.0;
 
@@ -21,7 +21,7 @@ pub const PARENT_MAX_PATIENCE: f32 = 120.0;
 /// Y position of parent spawn.
 pub const PARENT_SPAWN_Y: f32 = 400.0;
 /// X position of the start of the parent queue.
-pub const PARENT_QUEUE_X: f32 = -900.0;
+pub const PARENT_QUEUE_X: f32 = -850.0;
 
 /// Size of spawned children.
 pub const CHILD_SIZE: f32 = 64.0;
