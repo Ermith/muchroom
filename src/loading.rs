@@ -73,6 +73,28 @@ pub struct TextureAssets {
     #[asset(path = "textures/mushrooms/derp/derp_parent_body.png")]
     pub derp_parent_body: Handle<Image>,
 
+    #[asset(path = "textures/mushrooms/psycho/psycho_spores.png")]
+    pub psycho_spores: Handle<Image>,
+    #[asset(path = "textures/mushrooms/psycho/psycho_baby_body.png")]
+    pub psycho_baby_body: Handle<Image>,
+    #[asset(path = "textures/mushrooms/psycho/psycho_child_body.png")]
+    pub psycho_child_body: Handle<Image>,
+    #[asset(path = "textures/mushrooms/psycho/psycho_teenager_body.png")]
+    pub psycho_teenager_body: Handle<Image>,
+    #[asset(path = "textures/mushrooms/psycho/psycho_parent_body.png")]
+    pub psycho_parent_body: Handle<Image>,
+
+    #[asset(path = "textures/mushrooms/poser/poser_spores.png")]
+    pub poser_spores: Handle<Image>,
+    #[asset(path = "textures/mushrooms/poser/poser_baby_body.png")]
+    pub poser_baby_body: Handle<Image>,
+    #[asset(path = "textures/mushrooms/poser/poser_child_body.png")]
+    pub poser_child_body: Handle<Image>,
+    #[asset(path = "textures/mushrooms/poser/poser_teenager_body.png")]
+    pub poser_teenager_body: Handle<Image>,
+    #[asset(path = "textures/mushrooms/poser/poser_parent_body.png")]
+    pub poser_parent_body: Handle<Image>,
+
     // Parent Walking Animations
     //====================================
 
@@ -281,7 +303,7 @@ pub fn init_animation_resource(
     vec.push(texture_assets.psycho_parent_walking_body_3.clone());
     vec.push(texture_assets.psycho_parent_walking_body_4.clone());
     vec.push(texture_assets.psycho_parent_walking_body_5.clone());
-    animation_assets.psycho_parent_nervous_eyes.push(
+    animation_assets.psycho_parent_walking_eyes.push(
         texture_assets.psycho_parent_walking_eyes.clone()
     );
 
@@ -293,7 +315,7 @@ pub fn init_animation_resource(
     vec.push(texture_assets.poser_parent_walking_body_4.clone());
     vec.push(texture_assets.poser_parent_walking_body_5.clone());
     vec.push(texture_assets.poser_parent_walking_body_6.clone());
-    animation_assets.poser_parent_nervous_eyes.push(
+    animation_assets.poser_parent_walking_eyes.push(
         texture_assets.poser_parent_walking_eyes.clone()
     );
 
@@ -348,7 +370,7 @@ pub fn init_animation_resource(
     vec.push(texture_assets.derp_parent_nervous_body_2.clone());
     vec.push(texture_assets.derp_parent_nervous_body_3.clone());
     vec.push(texture_assets.derp_parent_nervous_body_4.clone());
-    animation_assets.derp_parent_patient_eyes.push(
+    animation_assets.derp_parent_nervous_eyes.push(
         texture_assets.derp_parent_nervous_eyes.clone()
     );
 

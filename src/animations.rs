@@ -28,6 +28,11 @@ impl Animation {
             is_changed: false
         }
     }
+
+    pub fn change_frames(mut self, frames: Vec<Handle<Image>>) {
+        self.frames = frames;
+        self.timer = 0.0;
+    }
 }
 
 pub fn update_animations(
@@ -42,6 +47,28 @@ pub fn update_animations(
 
             animation.frame_index = (animation.frame_index + 1) % animation.frames.len();
             *sprite = animation.frames[animation.frame_index].clone();
+        }
+    }
+}
+
+#[derive(Bundle)]
+pub struct AnimationBundle {
+    animation: Animation,
+    sprite_sheet: SpriteSheetBundle
+}
+
+impl AnimationBundle {
+    pub fn new(frames: Vec<Handle<Image>>, frame_period: f32, scale: f32, z: f32) -> Self {
+        let t = Transform::from_translation(Vec3::new(0.0, 0.0, z)).with_scale(Vec3::new(scale, scale, scale));
+        let first = frames[0].clone();
+
+        Self {
+            animation: Animation::new(frames, frame_period),
+            sprite_sheet: SpriteSheetBundle {
+                transform: t,
+                texture: first,
+                ..default()
+            }
         }
     }
 }

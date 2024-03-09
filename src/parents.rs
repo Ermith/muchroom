@@ -4,7 +4,7 @@ use rand::prelude::*;
 use bevy::prelude::*;
 use bevy_progressbar::{ProgressBar, ProgressBarBundle, ProgressBarMaterial};
 
-use crate::{child::Child, growing::Growable, hitbox::*, needs::*, loading::*, GameState};
+use crate::{animations::AnimationBundle, child::Child, growing::Growable, hitbox::*, needs::*, loading::*, GameState};
 use crate::animations::Animation;
 
 pub const MAX_PARENTS: usize = 13;
@@ -41,6 +41,20 @@ const BAR_WIDTH: f32 = PARENT_SIZE.x - 20.0;
 /// Y offset of patience bar from parent.
 const BAR_OFFSET: f32 = 70.0;
 
+#[derive(Clone, Copy, Eq, PartialEq)]
+enum ParentState {
+    Walking,
+    Patient,
+    Nervous
+}
+
+#[derive(Clone, Copy, Eq, PartialEq)]
+pub enum Species {
+    Derp,
+    Psycho,
+    Poser
+}
+
 pub struct ParentsPlugin;
 
 #[derive(Component)]
@@ -48,6 +62,9 @@ pub struct Parent {
     /// Position of parent in parent queue/
     queue_index: usize,
     patience_timer: Timer,
+    state: ParentState,
+    species: Species,
+    is_changed: bool
 }
 
 #[derive(Component)]
@@ -78,13 +95,20 @@ impl Plugin for ParentsPlugin {
                 move_walkers,
                 update_patience,
                 read_on_drop_events,
+                update_parent_animations,
             ).run_if(in_state(GameState::Playing)));
     }
 }
 
 impl Default for Parent {
     fn default() -> Self {
-        Self { queue_index: 0, patience_timer: Timer::from_seconds(PARENT_MAX_PATIENCE, TimerMode::Once) }
+        Self { 
+            queue_index: 0,
+            patience_timer: Timer::from_seconds(PARENT_MAX_PATIENCE, TimerMode::Once),
+            state: ParentState::Walking,
+            species: Species::Derp,
+            is_changed: false
+        }
     }
 }
 
@@ -179,46 +203,167 @@ fn handle_random_parent_spawning(
 
         commands.get_entity(bar_container).unwrap().add_child(patience_bar);
 
-        let mut t = Transform::from_translation(spawn_pos);
-        t.scale = Vec3::new(0.1, 0.1, 0.1);
-        let parent = commands.spawn((
-            Parent {
-                queue_index: picked_slot,
-                ..default()
-            },
-            SpatialBundle {
-                transform: Transform::from_translation(spawn_pos),
-                ..default()
-            },
-            Walker {
-                destination: Vec2::new(PARENT_QUEUE_X, PARENT_SPAWN_Y)
-                    + Vec2::X * ((PARENT_SIZE.x + PARENT_GAP) * picked_slot as f32),
-            },
-            InLayers::new_single(Layer::Parent),
-            HasPatienceBar(patience_bar),
+        let species = match rand::thread_rng().next_u32() % 3 {
+            0 => Species::Derp,
+            1 => Species::Psycho,
+            2 => Species::Poser,
+            _ => Species::Derp
+        };
+
+        spawn_parent(&mut commands, &animation_assets, species, spawn_pos, picked_slot, patience_bar);
+    }
+}
+
+fn spawn_parent(
+    commands: &mut Commands,
+    animation_assets: &AnimationAssets,
+    species: Species,
+    spawn_pos: Vec3,
+    slot: usize,
+    patience_bar: Entity
+) {
+    let parent = commands.spawn((
+        Parent {
+            queue_index: slot,
+            species,
+            ..default()
+        },
+        SpatialBundle {
+            transform: Transform::from_translation(spawn_pos),
+            ..default()
+        },
+        Walker {
+            destination: Vec2::new(PARENT_QUEUE_X, PARENT_SPAWN_Y)
+                + Vec2::X * ((PARENT_SIZE.x + PARENT_GAP) * slot as f32),
+        },
+        InLayers::new_single(Layer::Parent),
+        HasPatienceBar(patience_bar),
+    )).id();
+
+    spawn_animations(parent, commands, animation_assets, species, ParentState::Walking);
+}
+
+fn spawn_animations(
+    parent: Entity,
+    commands: &mut Commands,
+    animation_assets: &AnimationAssets,
+    species: Species,
+    state: ParentState
+) {
+    let animation_body = get_animation(animation_assets, species, state, false);
+    let animation_eyes = get_animation(animation_assets, species, state, true);
+    
+    let animation_body = commands.spawn((
+        AnimationBundle::new(animation_body, 0.15, 0.2, 0.0),
         )).id();
 
-        let animation_body = commands.spawn((
-            SpriteSheetBundle {
-                transform: Transform::from_scale(Vec3::new(0.2,0.2,0.2)),
-                texture: textures.bevy.clone(),
-                ..default()
-            },
-            Animation::new(
-                animation_assets.derp_parent_walking_body.clone(), 0.15
-        ))).id();
+    let animation_eyes = commands.spawn((
+        AnimationBundle::new(animation_eyes, 0.15, 0.2, 0.1),
+        )).id();
 
-        let animation_eyes = commands.spawn((
-            SpriteBundle {
-                transform: Transform::from_scale(Vec3::new(0.2,0.2, 0.2)).with_translation(Vec3::new(0.0, 0.0, 0.1)),
-                texture: textures.bevy.clone(),
-                ..default()
-            },
-            Animation::new(
-                animation_assets.derp_parent_walking_eyes.clone(), 0.15,
-        ))).id();
+    commands.entity(parent).push_children(&[animation_body, animation_eyes]);
+}
 
-        commands.entity(parent).push_children(&[animation_body, animation_eyes]);
+fn get_animation(animation_assets: &AnimationAssets, species: Species, state: ParentState, eyes: bool) -> Vec<Handle<Image>> {
+    match species {
+        Species::Derp => get_derp_animation(animation_assets, state, eyes),
+        Species::Psycho => get_psycho_animation(animation_assets, state, eyes),
+        Species::Poser => get_poser_animation(animation_assets, state, eyes)
+    }
+}
+
+fn get_derp_animation(animation_assets: &AnimationAssets, state: ParentState, eyes: bool) -> Vec<Handle<Image>> {
+    match state {
+        ParentState::Walking =>
+        if eyes {
+            animation_assets.derp_parent_walking_eyes.clone()
+        } else {
+            animation_assets.derp_parent_walking_body.clone()
+        },
+
+        ParentState::Patient =>
+        if eyes {
+            animation_assets.derp_parent_patient_eyes.clone()
+        } else {
+            animation_assets.derp_parent_patient_body.clone()
+        },
+
+        ParentState::Nervous =>
+        if eyes {
+            animation_assets.derp_parent_nervous_eyes.clone()
+        } else {
+            animation_assets.derp_parent_nervous_body.clone()
+        },
+    }
+}
+
+fn get_psycho_animation(animation_assets: &AnimationAssets, state: ParentState, eyes: bool) -> Vec<Handle<Image>> {
+    match state {
+        ParentState::Walking =>
+        if eyes {
+            animation_assets.psycho_parent_walking_eyes.clone()
+        } else {
+            animation_assets.psycho_parent_walking_body.clone()
+        },
+
+        ParentState::Patient =>
+        if eyes {
+            animation_assets.psycho_parent_patient_eyes.clone()
+        } else {
+            animation_assets.psycho_parent_patient_body.clone()
+        },
+
+        ParentState::Nervous =>
+        if eyes {
+            animation_assets.psycho_parent_nervous_eyes.clone()
+        } else {
+            animation_assets.psycho_parent_nervous_body.clone()
+        },
+    }
+}
+
+fn get_poser_animation(animation_assets: &AnimationAssets, state: ParentState, eyes: bool) -> Vec<Handle<Image>> {
+    match state {
+        ParentState::Walking =>
+        if eyes {
+            animation_assets.poser_parent_walking_eyes.clone()
+        } else {
+            animation_assets.poser_parent_walking_body.clone()
+        },
+
+        ParentState::Patient =>
+        if eyes {
+            animation_assets.poser_parent_patient_eyes.clone()
+        } else {
+            animation_assets.poser_parent_patient_body.clone()
+        },
+
+        ParentState::Nervous =>
+        if eyes {
+            animation_assets.poser_parent_nervous_eyes.clone()
+        } else {
+            animation_assets.poser_parent_nervous_body.clone()
+        },
+    }
+}
+
+fn update_parent_animations(
+    mut commands: Commands,
+    mut parent_query: Query<(Entity, &mut Parent)>,
+    children_query: Query<&Children>,
+    animation_assets: Res<AnimationAssets>
+) {
+    for (entity, mut parent) in parent_query.iter_mut() {
+        if !parent.is_changed { continue; }
+
+        for child in children_query.iter_descendants(entity) {
+            if let Some(mut child_commands) = commands.get_entity(child) {
+                child_commands.despawn();
+            }
+        }
+
+        spawn_animations(entity, &mut commands, &animation_assets, parent.species, parent.state);
+        parent.is_changed = false;
     }
 }
 
@@ -226,9 +371,9 @@ fn move_walkers(
     mut commands: Commands, 
     time: Res<Time>, 
     textures: Res<TextureAssets>,
-    mut query: Query<(Entity, &mut Transform, &Walker)>
+    mut query: Query<(Entity, &mut Parent, &mut Transform, &Walker)>
 ) {
-    for (entity, mut transform, walker) in &mut query {
+    for (entity, mut parent, mut transform, walker) in &mut query {
         let direction = (walker.destination.extend(0.0) - transform.translation).normalize();
         transform.translation += direction * PARENT_WALK_SPEED * time.delta_seconds();
 
@@ -238,11 +383,17 @@ fn move_walkers(
 
             commands.entity(entity).insert(Hitbox::new_centered(Vec2::splat(128.0)));
 
+            let spores_texture = match parent.species {
+                Species::Derp => textures.derp_spores.clone(),
+                Species::Psycho => textures.psycho_spores.clone(),
+                Species::Poser => textures.poser_spores.clone()
+            };
+
             let mut spore_transform = *transform;
             spore_transform.translation += Vec3::new(0.0, 0.0, 1.5);
             commands.spawn((
                 SpriteSheetBundle {
-                    texture: textures.derp_spores.clone(),
+                    texture: spores_texture,
                     transform: spore_transform,
                     sprite: Sprite {
                         custom_size: Some(Vec2::splat(CHILD_SIZE)),
@@ -259,10 +410,14 @@ fn move_walkers(
                 InLayers::new_single(Layer::Child),
                 Child {
                     parent_entity: entity,
+                    species: parent.species
                 },
                 Needs::default(),
                 DropBlocker,
             ));
+
+            parent.state = ParentState::Patient;
+            parent.is_changed = true;
         }
     }
 }
@@ -296,7 +451,10 @@ fn update_patience(
 
         parent.patience_timer.tick(time.delta());
 
-        // TODO: update animation
+        if parent.patience_timer.remaining() < parent.patience_timer.duration() / 2 && parent.state != ParentState::Nervous {
+            parent.state = ParentState::Nervous;
+            parent.is_changed = true;
+        }
 
         if parent.patience_timer.just_finished() {
             // TODO: Game Over
