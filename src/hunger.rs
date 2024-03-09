@@ -114,12 +114,17 @@ fn read_on_drop_events(
         }
 
         if let Ok(mut transform) = food_query.get_mut(event.dropped_entity) {
+            transform.translation = BUCKET_SPAWN_POS.extend(1.0);
+
             let mut hunger = child_query.get_mut(event.dropped_on_entity).unwrap();
+
+            if hunger.bubble.is_none() {
+                continue;
+            }
+
             hunger.value = HUNGER_FULL_VALUE;
             commands.entity(hunger.bubble.unwrap()).despawn();
             hunger.bubble = None;
-
-            transform.translation = BUCKET_SPAWN_POS.extend(1.0);
         }
     }
 }
