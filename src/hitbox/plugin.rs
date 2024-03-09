@@ -89,19 +89,28 @@ fn debug_spawn_sample_stuff(
 
 fn emit_collision_events(
     mut collision_events: EventWriter<CollisionEvent>,
-    mut collidables: Query<(Entity, &Transform, &Hitbox, &mut EmitsCollisions)>,
-    all_hitboxes: Query<(Entity, &Transform, &Hitbox)>,
+    mut collidables: Query<(Entity, &Transform, &Hitbox, &mut EmitsCollisions, Option<&InLayers>)>,
+    all_hitboxes: Query<(Entity, &Transform, &Hitbox, Option<&InLayers>)>,
 ) {
-    for (collidable_entity, collidable_transform, collidable_hitbox, mut collision_emitter) in collidables.iter_mut() {
+    for (collidable_entity, collidable_transform, collidable_hitbox, mut collision_emitter, layers) in collidables.iter_mut() {
         collision_emitter.colliding_with.clear();
-        for (other_entity, other_transform, other_hitbox) in all_hitboxes.iter() {
+        for (other_entity, other_transform, other_hitbox, other_layers) in all_hitboxes.iter() {
             if collidable_entity == other_entity {
                 continue;
+            }
+            let mut share_layers = true;
+            if let Some(layers) = layers {
+                if let Some(other_layers) = other_layers {
+                    if !layers.intersects(other_layers) {
+                        share_layers = false;
+                    }
+                }
             }
             if collidable_hitbox.intersects(other_hitbox, &collidable_transform, &other_transform) {
                 collision_events.send(CollisionEvent {
                     collider: collidable_entity,
                     collidee: other_entity,
+                    share_layers,
                 });
                 collision_emitter.colliding_with.push(other_entity);
             }
@@ -135,14 +144,29 @@ fn log_drop_events(
 
 fn draw_hitbox_gizmos(
     mut gizmos: Gizmos<HitboxGizmos>,
-    hitboxes: Query<(&Transform, &Hitbox, Option<&EmitsCollisions>, Option<&DropBlocker>)>,
+    hitboxes: Query<(&Transform, &Hitbox, Option<&EmitsCollisions>, Option<&DropBlocker>, Option<&InLayers>)>,
 ) {
-    for (transform, hitbox, collidable, drop_blocker) in hitboxes.iter() {
+    for (transform, hitbox, collidable, drop_blocker, layers) in hitboxes.iter() {
         let color = if let Some(collidable) = collidable {
             if collidable.colliding_with.is_empty() {
                 Color::rgba(0.0, 1.0, 0.0, 1.0)
             } else {
-                Color::rgba(1.0, 0.0, 0.0, 1.0)
+                let share_layers = layers.is_none() || collidable.colliding_with.iter().any(|entity| {
+                    if let Ok(other_layers) = hitboxes.get(*entity).map(|(_, _, _, _, other_layers)| other_layers) {
+                        if let Some(other_layers) = other_layers {
+                            layers.unwrap().intersects(other_layers)
+                        } else {
+                            true
+                        }
+                    } else {
+                        true
+                    }
+                });
+                if share_layers {
+                    Color::rgba(1.0, 0.0, 0.0, 1.0)
+                } else {
+                    Color::rgba(1.0, 1.0, 0.0, 1.0)
+                }
             }
         } else {
             Color::rgba(0.2, 0.2, 0.2, 1.0)

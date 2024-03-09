@@ -71,7 +71,7 @@ fn read_on_drop_events(
     query: Query<&Child, Without<Growable>>
 ) {
     for event in events.read() {
-        if !query.get(event.dropped_entity).is_ok() {
+        if query.get(event.dropped_entity).is_err() {
             continue;
         }
 

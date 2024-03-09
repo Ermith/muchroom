@@ -9,7 +9,10 @@ mod player;
 mod hitbox;
 mod growing;
 mod parents;
+mod garden;
 mod child;
+mod camera;
+mod world;
 
 use crate::animations::AnimationsPlugin;
 use crate::actions::ActionsPlugin;
@@ -20,6 +23,9 @@ use crate::player::PlayerPlugin;
 use crate::hitbox::HitboxPlugin;
 use crate::growing::GrowingPlugin;
 use crate::parents::ParentsPlugin;
+use crate::garden::GardenPlugin;
+
+
 
 use bevy::app::App;
 #[cfg(debug_assertions)]
@@ -44,9 +50,19 @@ pub struct GamePlugin;
 
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
+        app
+            .insert_resource(world::WorldParams {
+                width: 1920.0,
+                height: 1080.0,
+            })
+            .insert_resource(ClearColor(Color::rgb(190.0 / 255.0, 143.0 / 255.0, 96.0 / 255.0)));
         app.init_state::<GameState>().add_plugins((
             LoadingPlugin,
+            camera::CameraPlugin {
+                scaling_mode: camera::CameraScalingMode::FitBoth,
+            },
             MenuPlugin,
+            GardenPlugin,
             ActionsPlugin,
             AnimationsPlugin,
             InternalAudioPlugin,
