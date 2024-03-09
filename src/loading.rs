@@ -36,6 +36,9 @@ pub struct AudioAssets {
 pub struct TextureAssets {
     #[asset(path = "textures/garden/garden.png")]
     pub garden_background: Handle<Image>,
+    // worms
+    #[asset(path = "textures/garden/worm_mound.png")]
+    pub worm_mound: Handle<Image>,
     #[asset(path = "textures/garden/bucket_full.png")]
     pub bucket_full: Handle<Image>,
     #[asset(path = "textures/garden/bucket_empty.png")]
@@ -44,6 +47,17 @@ pub struct TextureAssets {
     pub worm: Handle<Image>,
     #[asset(path = "textures/garden/bubble_worm.png")]
     pub bubble_worm: Handle<Image>,
+    // water
+    #[asset(path = "textures/garden/bucket_water.png")]
+    pub bucket_water: Handle<Image>,
+    #[asset(path = "textures/garden/bucket_water_leaves.png")]
+    pub bucket_water_leaves: Handle<Image>,
+    #[asset(path = "textures/garden/water_leaves.png")]
+    pub water_leaves: Handle<Image>,
+    #[asset(path = "textures/garden/water_leaves_empty.png")]
+    pub water_leaves_empty: Handle<Image>,
+    #[asset(path = "textures/garden/bubble_water.png")]
+    pub bubble_water: Handle<Image>,
 
     #[asset(path = "textures/bevy.png")]
     pub bevy: Handle<Image>,
@@ -72,6 +86,28 @@ pub struct TextureAssets {
     pub derp_teenager_body: Handle<Image>,
     #[asset(path = "textures/mushrooms/derp/derp_parent_body.png")]
     pub derp_parent_body: Handle<Image>,
+
+    #[asset(path = "textures/mushrooms/psycho/psycho_spores.png")]
+    pub psycho_spores: Handle<Image>,
+    #[asset(path = "textures/mushrooms/psycho/psycho_baby_body.png")]
+    pub psycho_baby_body: Handle<Image>,
+    #[asset(path = "textures/mushrooms/psycho/psycho_child_body.png")]
+    pub psycho_child_body: Handle<Image>,
+    #[asset(path = "textures/mushrooms/psycho/psycho_teenager_body.png")]
+    pub psycho_teenager_body: Handle<Image>,
+    #[asset(path = "textures/mushrooms/psycho/psycho_parent_body.png")]
+    pub psycho_parent_body: Handle<Image>,
+
+    #[asset(path = "textures/mushrooms/poser/poser_spores.png")]
+    pub poser_spores: Handle<Image>,
+    #[asset(path = "textures/mushrooms/poser/poser_baby_body.png")]
+    pub poser_baby_body: Handle<Image>,
+    #[asset(path = "textures/mushrooms/poser/poser_child_body.png")]
+    pub poser_child_body: Handle<Image>,
+    #[asset(path = "textures/mushrooms/poser/poser_teenager_body.png")]
+    pub poser_teenager_body: Handle<Image>,
+    #[asset(path = "textures/mushrooms/poser/poser_parent_body.png")]
+    pub poser_parent_body: Handle<Image>,
 
     // Parent Walking Animations
     //====================================
@@ -281,7 +317,7 @@ pub fn init_animation_resource(
     vec.push(texture_assets.psycho_parent_walking_body_3.clone());
     vec.push(texture_assets.psycho_parent_walking_body_4.clone());
     vec.push(texture_assets.psycho_parent_walking_body_5.clone());
-    animation_assets.psycho_parent_nervous_eyes.push(
+    animation_assets.psycho_parent_walking_eyes.push(
         texture_assets.psycho_parent_walking_eyes.clone()
     );
 
@@ -293,7 +329,7 @@ pub fn init_animation_resource(
     vec.push(texture_assets.poser_parent_walking_body_4.clone());
     vec.push(texture_assets.poser_parent_walking_body_5.clone());
     vec.push(texture_assets.poser_parent_walking_body_6.clone());
-    animation_assets.poser_parent_nervous_eyes.push(
+    animation_assets.poser_parent_walking_eyes.push(
         texture_assets.poser_parent_walking_eyes.clone()
     );
 
@@ -348,7 +384,7 @@ pub fn init_animation_resource(
     vec.push(texture_assets.derp_parent_nervous_body_2.clone());
     vec.push(texture_assets.derp_parent_nervous_body_3.clone());
     vec.push(texture_assets.derp_parent_nervous_body_4.clone());
-    animation_assets.derp_parent_patient_eyes.push(
+    animation_assets.derp_parent_nervous_eyes.push(
         texture_assets.derp_parent_nervous_eyes.clone()
     );
 

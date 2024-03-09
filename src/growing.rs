@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{child::Child, hitbox::{Draggable, DropEvent}, loading::TextureAssets, GameState};
+use crate::parents::Species;
 
 pub const GROW_SPEED: f32 = 1.0;
 pub const GROW_DURATION: f32 = 5.0;
@@ -27,6 +28,32 @@ impl Growable {
                 (textures.derp_child_body.clone(), ),
                 (textures.derp_teenager_body.clone(), ),
                 (textures.derp_parent_body.clone(), ),
+            ],
+            ..default()
+        }
+    }
+
+    pub fn psycho(textures: &TextureAssets) -> Self {
+        Self {
+            textures: [
+                (textures.psycho_spores.clone(), ),
+                (textures.psycho_baby_body.clone(), ),
+                (textures.psycho_child_body.clone(), ),
+                (textures.psycho_teenager_body.clone(), ),
+                (textures.psycho_parent_body.clone(), ),
+            ],
+            ..default()
+        }
+    }
+
+    pub fn poser(textures: &TextureAssets) -> Self {
+        Self {
+            textures: [
+                (textures.poser_spores.clone(), ),
+                (textures.poser_baby_body.clone(), ),
+                (textures.poser_child_body.clone(), ),
+                (textures.poser_teenager_body.clone(), ),
+                (textures.poser_parent_body.clone(), ),
             ],
             ..default()
         }
@@ -69,14 +96,18 @@ fn progress_grow(
 fn read_on_drop_events(
     mut commands: Commands,
     mut events: EventReader<DropEvent>,
-    textures: Res<TextureAssets>,
+    texture_assets: Res<TextureAssets>,
     query: Query<&Child, Without<Growable>>
 ) {
     for event in events.read() {
-        if query.get(event.dropped_entity).is_err() {
-            continue;
-        }
+        if let Ok(child) = query.get(event.dropped_entity) {
+            let textures = match child.species {
+                Species::Derp => Growable::derp(&texture_assets),
+                Species::Psycho => Growable::psycho(&texture_assets),
+                Species::Poser => Growable::poser(&texture_assets)
+            };
 
-        commands.entity(event.dropped_entity).insert(Growable::derp(&textures));
+            commands.entity(event.dropped_entity).insert(textures);
+        }
     }
 }
