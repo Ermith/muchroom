@@ -60,9 +60,10 @@ pub fn initiate_drag(
                     texture: image.clone(),
                     sprite: Sprite {
                         color: Color::rgba(1.5, 1.5, 1.5, 0.5),
+                        custom_size: sprite.custom_size.and_then(|size| Some(size * 1.3)),
                         ..sprite.clone()
                     },
-                    transform: Transform::from_translation(transform.translation).with_scale(Vec3::splat(1.3)),
+                    transform: Transform::from_translation(transform.translation),
                     ..Default::default()
                 },
                 hitbox.clone(),
