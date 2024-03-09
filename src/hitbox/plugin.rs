@@ -13,14 +13,17 @@ impl Plugin for HitboxPlugin {
             .add_systems(PreUpdate, super::mouse::mouse_coords_system)
             .add_event::<CollisionEvent>()
             .add_systems(PreUpdate, emit_collision_events)
+            .add_event::<DropEvent>()
             .add_systems(Update, (initiate_drag, update_drag, end_drag));
         if cfg!(debug_assertions) {
             // H to toggle hitbox gizmos
             app
                 .add_systems(OnEnter(GameState::Playing), debug_spawn_sample_stuff) // TODO: remove
                 .init_gizmo_group::<HitboxGizmos>()
-                .add_systems(Update, (draw_hitbox_gizmos, update_hitbox_gizmos_config));
                 // .add_systems(Update, log_collision_events);
+                // .add_systems(Update, log_drop_events)
+                .add_systems(Update, (draw_hitbox_gizmos, update_hitbox_gizmos_config));
+
         }
     }
 }
@@ -30,6 +33,20 @@ fn debug_spawn_sample_stuff(
     textures: Res<crate::loading::TextureAssets>,
     assets: Res<Assets<Image>>,
 ) {
+    let special_test_mushroom = commands.spawn((
+        SpriteBundle {
+            sprite: Sprite {
+                color: Color::rgba(1.0, 0.0, 0.0, 1.0),
+                ..Default::default()
+            },
+            transform: Transform::from_translation(Vec3::new(200.0, 0.0, 0.0)),
+            texture: textures.debug_mushroom.clone(),
+            ..Default::default()
+        },
+        Hitbox::new_centered(assets.get(&textures.debug_mushroom).unwrap().size().as_vec2()),
+        InLayers::new_single(Layer::Parent),
+    )).id();
+
     for _ in 0..10 {
         let x = rand::random::<f32>() * 800.0 - 400.0;
         let y = rand::random::<f32>() * 600.0 - 300.0;
@@ -38,17 +55,36 @@ fn debug_spawn_sample_stuff(
         let mut spawn = commands.spawn((
             SpriteBundle {
                 transform: Transform::from_translation(Vec3::new(x, y, 0.0)),
+                sprite: Sprite {
+                    custom_size: Some(image_dim.as_vec2()),
+                    ..Default::default()
+                },
                 texture: image,
                 ..Default::default()
             },
             Hitbox::new_centered(image_dim.as_vec2()),
             EmitsCollisions::default(),
-            Draggable::default(),
+            Draggable {
+                must_be_contained_in: Some(Layer::Garden.into()),
+                special_allowed_entities: vec![special_test_mushroom],
+                ..Default::default()
+            },
+            InLayers::new_single(Layer::Child),
         ));
         if rand::random::<f32>() < 0.5 {
             spawn.insert(DropBlocker);
         }
     }
+
+    commands.spawn((
+        SpriteBundle {
+            transform: Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)),
+            texture: textures.github.clone(),
+            ..Default::default()
+        },
+        Hitbox::new_centered(assets.get(&textures.github).unwrap().size().as_vec2()),
+        InLayers::new_single(Layer::Garden),
+    ));
 }
 
 fn emit_collision_events(
@@ -85,6 +121,15 @@ fn log_collision_events(
 ) {
     for event in events.read() {
         info!("Collision: {:?} -> {:?}", event.collider, event.collidee);
+    }
+}
+
+#[allow(dead_code)]
+fn log_drop_events(
+    mut events: EventReader<DropEvent>,
+) {
+    for event in events.read() {
+        info!("Drop: {:?}", event.dropped_entity);
     }
 }
 

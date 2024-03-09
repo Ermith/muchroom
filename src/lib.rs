@@ -9,6 +9,7 @@ mod hitbox;
 mod growing;
 mod parents;
 mod garden;
+mod child;
 
 use crate::actions::ActionsPlugin;
 use crate::audio::InternalAudioPlugin;
