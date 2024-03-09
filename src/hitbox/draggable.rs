@@ -40,7 +40,7 @@ pub fn initiate_drag(
     mut commands: Commands,
     mouse_buttons: Res<ButtonInput<MouseButton>>,
     mouse_coords: Res<super::mouse::MouseCoords>,
-    mut query: Query<(Entity, &Transform, &Hitbox, &mut Draggable, &Handle<Image>)>,
+    mut query: Query<(Entity, &Transform, &Hitbox, &mut Draggable, &Handle<Image>, &Sprite)>,
 ) {
     if !mouse_buttons.just_pressed(MouseButton::Left) {
         return;
@@ -48,7 +48,7 @@ pub fn initiate_drag(
 
     let mouse_pos: Vec2 = mouse_coords.as_ref().into();
 
-    for (entity, transform, hitbox, mut draggable, image) in query.iter_mut() {
+    for (entity, transform, hitbox, mut draggable, image, sprite) in query.iter_mut() {
         if hitbox.world_rect(transform).contains(mouse_pos) {
             let offset = transform.translation.truncate() - mouse_pos;
             let drag_shadow_entity = commands.spawn((
@@ -60,7 +60,7 @@ pub fn initiate_drag(
                     texture: image.clone(),
                     sprite: Sprite {
                         color: Color::rgba(1.5, 1.5, 1.5, 0.5),
-                        ..Default::default()
+                        ..sprite.clone()
                     },
                     transform: Transform::from_translation(transform.translation).with_scale(Vec3::splat(1.3)),
                     ..Default::default()
