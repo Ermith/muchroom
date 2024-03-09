@@ -14,6 +14,7 @@ mod child;
 mod camera;
 mod world;
 mod needs;
+mod game_object;
 mod highlight;
 
 use crate::animations::AnimationsPlugin;
@@ -27,6 +28,8 @@ use crate::growing::GrowingPlugin;
 use crate::parents::ParentsPlugin;
 use crate::garden::GardenPlugin;
 use crate::needs::NeedsPlugin;
+use crate::game_object::GameObjectPlugin;
+pub use crate::game_object::GameObject;
 use crate::highlight::HighlightPlugin;
 
 pub const WINDOW_WIDTH: f32 = 1920.0;
@@ -49,6 +52,14 @@ enum GameState {
     Playing,
     // Here the menu is drawn and waiting for player interaction
     Menu,
+    GameOver,
+}
+
+#[derive(States, Default, Clone, Eq, PartialEq, Debug, Hash)]
+enum PausedState {
+    #[default]
+    Unpaused,
+    Paused,
 }
 
 pub struct GamePlugin;
@@ -61,12 +72,16 @@ impl Plugin for GamePlugin {
                 height: WINDOW_HEIGHT,
             })
             .insert_resource(ClearColor(Color::rgb(190.0 / 255.0, 143.0 / 255.0, 96.0 / 255.0)));
-        app.init_state::<GameState>().add_plugins((
+        app
+            .init_state::<GameState>()
+            .init_state::<PausedState>()
+            .add_plugins((
             LoadingPlugin,
             camera::CameraPlugin {
                 scaling_mode: camera::CameraScalingMode::FitBoth,
             },
             bevy_progressbar::ProgressBarPlugin,
+            GameObjectPlugin,
             MenuPlugin,
             GardenPlugin,
             ActionsPlugin,

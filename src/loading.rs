@@ -109,6 +109,22 @@ pub struct TextureAssets {
     #[asset(path = "textures/mushrooms/poser/poser_parent_body.png")]
     pub poser_parent_body: Handle<Image>,
 
+    // Psycho child hypnotic
+    #[asset(path = "textures/mushrooms/psycho/hypno_child/psycho_child_hypnotic_body.png")]
+    pub psycho_child_hypnotic_body: Handle<Image>,
+    #[asset(path = "textures/mushrooms/psycho/hypno_child/psycho_child_hypnotic_eyes_1.png")]
+    pub psycho_child_hypnotic_eyes_1: Handle<Image>,
+    #[asset(path = "textures/mushrooms/psycho/hypno_child/psycho_child_hypnotic_eyes_2.png")]
+    pub psycho_child_hypnotic_eyes_2: Handle<Image>,
+    #[asset(path = "textures/mushrooms/psycho/hypno_child/psycho_child_hypnotic_eyes_3.png")]
+    pub psycho_child_hypnotic_eyes_3: Handle<Image>,
+    #[asset(path = "textures/mushrooms/psycho/hypno_child/psycho_child_hypnotic_eyes_4.png")]
+    pub psycho_child_hypnotic_eyes_4: Handle<Image>,
+    #[asset(path = "textures/mushrooms/psycho/hypno_child/psycho_child_hypnotic_eyes_5.png")]
+    pub psycho_child_hypnotic_eyes_5: Handle<Image>,
+    #[asset(path = "textures/mushrooms/psycho/hypno_child/psycho_child_hypnotic_eyes_6.png")]
+    pub psycho_child_hypnotic_eyes_6: Handle<Image>,
+
     // Parent Walking Animations
     //====================================
 
@@ -263,6 +279,10 @@ pub struct TextureAssets {
 
 #[derive(Resource, Default)]
 pub struct AnimationAssets {
+    // Psycho Child Animation
+    pub psycho_child_hypnotic_body: Vec<Handle<Image>>,
+    pub psycho_child_hypnotic_eyes: Vec<Handle<Image>>,
+
     // Parent Walking Animations
     pub derp_parent_walking_body: Vec<Handle<Image>>,
     pub psycho_parent_walking_body: Vec<Handle<Image>>,
@@ -295,6 +315,17 @@ pub fn init_animation_resource(
     mut animation_assets: ResMut<AnimationAssets>,
     texture_assets: Res<TextureAssets>
 ) {
+    // Psycho Hypno Child
+    let vec = &mut animation_assets.psycho_child_hypnotic_eyes;
+    vec.push(texture_assets.psycho_child_hypnotic_eyes_1.clone());
+    vec.push(texture_assets.psycho_child_hypnotic_eyes_2.clone());
+    vec.push(texture_assets.psycho_child_hypnotic_eyes_3.clone());
+    vec.push(texture_assets.psycho_child_hypnotic_eyes_4.clone());
+    vec.push(texture_assets.psycho_child_hypnotic_eyes_5.clone());
+    animation_assets.psycho_child_hypnotic_body.push(
+        texture_assets.psycho_child_hypnotic_body.clone()
+    );
+
     // Parent Walking Animations
     //==================================
 

@@ -69,6 +69,7 @@ pub fn initiate_drag(
                 },
                 hitbox.clone(),
                 EmitsCollisions::default(),
+                crate::GameObject,
             )).id();
             draggable.drag_shadow = Some(drag_shadow_entity);
             return; // at most one drag-start!
