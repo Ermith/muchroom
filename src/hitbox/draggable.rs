@@ -90,14 +90,12 @@ pub fn end_drag(
     mut drop_events: ResMut<Events<DropEvent>>,
     mouse_buttons: Res<ButtonInput<MouseButton>>,
     mut draggables: Query<(Entity, &Hitbox, &mut Draggable, &mut Transform, Option<&DropBlocker>, &InLayers), Without<DragShadow>>,
-    non_draggable_hitboxes: Query<(&Hitbox, Option<&DropBlocker>, &InLayers, &Transform), Without<Draggable>,>,
-    drag_shadows: Query<(Entity, &DragShadow, &Transform, &EmitsCollisions)>,
+    non_draggable_hitboxes: Query<(&Hitbox, Option<&DropBlocker>, &InLayers, &Transform), Without<Draggable>>,
+    mut drag_shadows: Query<(Entity, &DragShadow, &Transform, &EmitsCollisions, &mut Sprite)>,
 ) {
-    if !mouse_buttons.just_released(MouseButton::Left) {
-        return;
-    }
+    let released_drag = mouse_buttons.just_released(MouseButton::Left);
 
-    for (drag_shadow_entity, drag_shadow, drag_shadow_transform, EmitsCollisions{colliding_with}) in drag_shadows.iter() {
+    for (drag_shadow_entity, drag_shadow, drag_shadow_transform, EmitsCollisions{colliding_with}, mut sprite) in &mut drag_shadows {
         let original_entity = drag_shadow.original_entity;
         let (_, dragged_hitbox, dragged_draggable, _, _, dragged_in_layers) = draggables.get(original_entity).unwrap();
         let mut collides_with_blocker = false;
@@ -137,8 +135,8 @@ pub fn end_drag(
             }
         }
         let succeeded_drop = special_entity_collision || (!collides_with_blocker && is_contained_in_target && intersects_with_target);
-        if succeeded_drop {
-            if let Ok((_, _, mut draggable, mut transform, _, _)) = draggables.get_mut(original_entity) {
+        if let Ok((_, _, mut draggable, mut transform, _, _)) = draggables.get_mut(original_entity) {
+            if released_drag && succeeded_drop {
                 let orig_z = transform.translation.z;
                 transform.translation = drag_shadow_transform.translation;
                 transform.translation.z = orig_z;
@@ -147,8 +145,16 @@ pub fn end_drag(
                     dropped_entity: original_entity,
                     dropped_on_entity: target,
                 });
+                commands.entity(drag_shadow_entity).despawn();
+            } else {
+                sprite.color = if succeeded_drop { 
+                    Color::rgba(1.5, 1.5, 1.5, 0.5)
+                } else {
+                    Color::rgba(0.7, 0.5, 0.5, 0.5)
+                };
             }
+        } else {
+            commands.entity(drag_shadow_entity).despawn();
         }
-        commands.entity(drag_shadow_entity).despawn();
     }
 }
