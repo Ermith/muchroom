@@ -259,6 +259,7 @@ fn move_walkers(
                     parent_entity: entity,
                 },
                 Hunger::default(),
+                DropBlocker,
             ));
         }
     }
