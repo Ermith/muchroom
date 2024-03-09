@@ -36,6 +36,9 @@ pub struct AudioAssets {
 pub struct TextureAssets {
     #[asset(path = "textures/garden/garden.png")]
     pub garden_background: Handle<Image>,
+    // worms
+    #[asset(path = "textures/garden/worm_mound.png")]
+    pub worm_mound: Handle<Image>,
     #[asset(path = "textures/garden/bucket_full.png")]
     pub bucket_full: Handle<Image>,
     #[asset(path = "textures/garden/bucket_empty.png")]
@@ -44,6 +47,17 @@ pub struct TextureAssets {
     pub worm: Handle<Image>,
     #[asset(path = "textures/garden/bubble_worm.png")]
     pub bubble_worm: Handle<Image>,
+    // water
+    #[asset(path = "textures/garden/bucket_water.png")]
+    pub bucket_water: Handle<Image>,
+    #[asset(path = "textures/garden/bucket_water_leaves.png")]
+    pub bucket_water_leaves: Handle<Image>,
+    #[asset(path = "textures/garden/water_leaves.png")]
+    pub water_leaves: Handle<Image>,
+    #[asset(path = "textures/garden/water_leaves_empty.png")]
+    pub water_leaves_empty: Handle<Image>,
+    #[asset(path = "textures/garden/bubble_water.png")]
+    pub bubble_water: Handle<Image>,
 
     #[asset(path = "textures/bevy.png")]
     pub bevy: Handle<Image>,
