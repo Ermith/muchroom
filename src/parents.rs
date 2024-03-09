@@ -4,11 +4,12 @@ use rand::prelude::*;
 
 use bevy::prelude::*;
 
-use crate::{growing::Growable, hitbox::*, loading::TextureAssets, GameState};
+use crate::{hitbox::*, loading::TextureAssets, GameState};
 
 pub const MAX_PARENTS: usize = 5;
 pub const MIN_PARENT_SPAWN_TIME: f32 = 10.0;
 pub const MAX_PARENT_SPAWN_TIME: f32 = 30.0;
+
 // Maybe in future replace with texture size?
 pub const PARENT_SIZE: Vec2 = Vec2::new(128.0, 256.0);
 pub const PARENT_WALK_SPEED: f32 = 100.0;
@@ -18,6 +19,11 @@ pub const PARENT_QUEUE_OFFSET: f32 = 256.0;
 pub const PARENT_GAP: f32 = 10.0;
 /// Time after which will parent run out of patience, which results in game over.
 pub const PARENT_MAX_PATIENCE: f32 = 120.0;
+
+/// Size of spawned children.
+pub const CHILD_SIZE: f32 = 64.0;
+/// Size of hitbox of spawned children.
+pub const CHILD_HITBOX_SIZE: f32 = 48.0;
 
 pub struct ParentsPlugin;
 
@@ -138,16 +144,18 @@ fn move_walkers(
                     texture: textures.derp_spores.clone(),
                     transform: transform.clone(),
                     sprite: Sprite {
-                        custom_size: Some(Vec2::splat(64.0)),
+                        custom_size: Some(Vec2::splat(CHILD_SIZE)),
                         ..default()
                     },
                     ..default()
                 },
-                Hitbox::new_centered(Vec2::splat(32.0)),
+                Hitbox::new_centered(Vec2::splat(CHILD_HITBOX_SIZE)),
                 EmitsCollisions::default(),
-                // TODO: add growable component when spores are moved to garden.
-                //Growable::Derp(&textures)
-                //Draggable::default(),
+                Draggable {
+                    must_be_contained_in: Some(Layer::Garden.into()),
+                    ..default()
+                },
+                InLayers::new_single(Layer::Child),
             ));
         }
     }
