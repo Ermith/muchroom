@@ -7,15 +7,13 @@ use bevy_progressbar::{ProgressBar, ProgressBarBundle, ProgressBarMaterial};
 use crate::{child::Child, growing::Growable, hitbox::*, needs::*, loading::*, GameState};
 use crate::animations::Animation;
 
-pub const MAX_PARENTS: usize = 5;
+pub const MAX_PARENTS: usize = 13;
 pub const MIN_PARENT_SPAWN_TIME: f32 = 10.0;
 pub const MAX_PARENT_SPAWN_TIME: f32 = 30.0;
 
 // Maybe in future replace with texture size?
 pub const PARENT_SIZE: Vec2 = Vec2::new(128.0, 256.0);
 pub const PARENT_WALK_SPEED: f32 = 100.0;
-/// Distance from parent spawn to the start of parent waiting queue.
-pub const PARENT_QUEUE_OFFSET: f32 = 256.0;
 /// Gap between parents in the parent waiting queue.
 pub const PARENT_GAP: f32 = 10.0;
 /// Time after which will parent run out of patience, which results in game over.
@@ -23,7 +21,7 @@ pub const PARENT_MAX_PATIENCE: f32 = 120.0;
 /// Y position of parent spawn.
 pub const PARENT_SPAWN_Y: f32 = 400.0;
 /// X position of the start of the parent queue.
-pub const PARENT_QUEUE_X: f32 = -900.0;
+pub const PARENT_QUEUE_X: f32 = -850.0;
 
 /// Size of spawned children.
 pub const CHILD_SIZE: f32 = 64.0;
@@ -190,7 +188,7 @@ fn handle_random_parent_spawning(
             },
             Walker {
                 destination: Vec2::new(PARENT_QUEUE_X, PARENT_SPAWN_Y)
-                    + Vec2::X * (PARENT_QUEUE_OFFSET + (PARENT_SIZE.x + PARENT_GAP) * avaible_slot as f32),
+                    + Vec2::X * ((PARENT_SIZE.x + PARENT_GAP) * avaible_slot as f32),
             },
             InLayers::new_single(Layer::Parent),
             HasPatienceBar(patience_bar),
