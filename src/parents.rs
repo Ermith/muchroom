@@ -263,14 +263,14 @@ fn move_walkers(
 
 fn update_patience(
     time: Res<Time>,
-    mut query: Query<(&mut Parent, &Transform, Option<&HasPatienceBar>)>,
+    mut query: Query<(&mut Parent, &Transform, Option<&HasPatienceBar>, Option<&Walker>)>,
     mut bars: Query<(&mut ProgressBar, &bevy::prelude::Parent), (With<PatienceBar>, Without<Parent>)>,
     mut styles: Query<&mut Style, (Without<Parent>, Without<ProgressBar>)>,
     camera: Query<(&Camera, &GlobalTransform), (With<Camera2d>, Without<Parent>, Without<PatienceBar>)>,
 ) {
     // moving the bar really shouldn't be here but I'm too lazy to refactor it
     let (camera, camera_trans) = camera.single();
-    for (mut parent, trans, patience_bar) in &mut query {
+    for (mut parent, trans, patience_bar, walker) in &mut query {
         if let Some(patience_bar) = patience_bar {
             if let Ok((mut bar, ui_parent)) = bars.get_mut(patience_bar.0) {
                 bar.set_progress(parent.patience_timer.fraction_remaining());
@@ -284,6 +284,9 @@ fn update_patience(
                 style.top = Val::Px(bar_pos.y);
             }
         }
+
+        // no impatience until you arrive
+        if walker.is_some() { continue };
 
         parent.patience_timer.tick(time.delta());
 
