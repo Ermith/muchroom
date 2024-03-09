@@ -38,4 +38,7 @@ pub struct TextureAssets {
     pub debug_mushroom: Handle<Image>,
     #[asset(path = "textures/parent_placeholder.png")]
     pub placeholder_parent: Handle<Image>,
+    
+    #[asset(path = "textures/mushrooms/derp/derp_spores.png")]
+    pub derp_spores: Handle<Image>,
 }
