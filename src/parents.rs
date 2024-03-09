@@ -23,9 +23,9 @@ pub const PARENT_SPAWN_Y: f32 = 400.0;
 pub const PARENT_QUEUE_X: f32 = -850.0;
 
 /// Size of spawned children.
-pub const CHILD_SIZE: f32 = 64.0;
+pub const CHILD_SIZE: f32 = 128.0;
 /// Size of hitbox of spawned children.
-pub const CHILD_HITBOX_SIZE: f32 = 48.0;
+pub const CHILD_HITBOX_SIZE: f32 = 100.0;
 
 /// How much the bar color wobble tends to return to normalcy
 const FLOATY_NORMALCY_BIAS: f32 = 0.015;
