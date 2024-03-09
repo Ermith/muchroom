@@ -23,7 +23,7 @@ pub const PARENT_MAX_PATIENCE: f32 = 120.0;
 /// Y position of parent spawn.
 pub const PARENT_SPAWN_Y: f32 = 400.0;
 /// X position of the start of the parent queue.
-pub const PARENT_QUEUE_X: f32 = -950.0;
+pub const PARENT_QUEUE_X: f32 = -900.0;
 
 /// Size of spawned children.
 pub const CHILD_SIZE: f32 = 64.0;
@@ -39,7 +39,7 @@ const BAR_SECTIONS: usize = 200;
 /// Height of patience bar in pixels.
 const BAR_HEIGHT: f32 = 20.0;
 /// Y offset of patience bar from parent.
-const BAR_OFFSET: f32 = 85.0;
+const BAR_OFFSET: f32 = 70.0;
 
 pub struct ParentsPlugin;
 
@@ -145,16 +145,16 @@ fn handle_random_parent_spawning(
         bar_bar.set_progress(1.0);
         let bar_style = Style {
             position_type: PositionType::Absolute,
-            width: Val::Px(PARENT_SIZE.x - 4.0),
-            height: Val::Px(BAR_HEIGHT - 4.0),
+            width: Val::Vw((PARENT_SIZE.x - 4.0) / 1920.0 * 100.0),
+            height: Val::Vh((BAR_HEIGHT - 4.0) / 1080.0 * 100.0),
             ..bevy_utils::default()
         };
 
         let bar_container = commands.spawn(NodeBundle {
             style: Style {
                 position_type: PositionType::Absolute,
-                width: Val::Px(PARENT_SIZE.x),
-                height: Val::Px(BAR_HEIGHT),
+                width: Val::Vw(PARENT_SIZE.x / 1920.0 * 100.0),
+                height: Val::Vh(BAR_HEIGHT / 1080.0 * 100.0),
                 top: Val::Px(BAR_OFFSET),
                 border: UiRect::all(Val::Px(2.)),
                 ..bevy_utils::default()
@@ -275,15 +275,9 @@ fn update_patience(
                 while bar.sections.len() > (parent.patience_timer.fraction_remaining() * BAR_SECTIONS as f32) as usize {
                     bar.sections.pop();
                 }
-                let bar_trans = trans.translation - Vec3::Y * BAR_OFFSET;
-                let mut bar_pos = camera.world_to_viewport(camera_trans, bar_trans).unwrap();
+                let bar_trans = trans.translation - Vec3::Y * BAR_OFFSET - Vec3::new(PARENT_SIZE.x / 2.0, BAR_HEIGHT / 2.0, 0.0);
+                let bar_pos = camera.world_to_viewport(camera_trans, bar_trans).unwrap();
                 let mut style = styles.get_mut(ui_parent.get()).unwrap();
-                if let Val::Px(w) = style.width {
-                    bar_pos.x -= w / 2.0;
-                }
-                if let Val::Px(h) = style.height {
-                    bar_pos.y -= h / 2.0;
-                }
                 style.left = Val::Px(bar_pos.x);
                 style.top = Val::Px(bar_pos.y);
             }
