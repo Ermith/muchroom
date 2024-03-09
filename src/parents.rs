@@ -4,7 +4,7 @@ use rand::prelude::*;
 use bevy::prelude::*;
 use bevy_progressbar::{ProgressBar, ProgressBarBundle, ProgressBarMaterial};
 
-use crate::{child::Child, growing::Growable, hitbox::*, hunger::Hunger, loading::{AnimationAssets, TextureAssets}, GameState};
+use crate::{child::Child, growing::Growable, hitbox::*, needs::*, loading::*, GameState};
 use crate::animations::Animation;
 
 pub const MAX_PARENTS: usize = 5;
@@ -256,7 +256,7 @@ fn move_walkers(
                 Child {
                     parent_entity: entity,
                 },
-                Hunger::default(),
+                Needs::default(),
             ));
         }
     }
