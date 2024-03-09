@@ -11,7 +11,7 @@ pub struct GrowingPlugin;
 #[derive(Component, Default)]
 pub struct Growable {
     progress: f32,
-    stage: usize,
+    pub stage: usize,
     // TODO: add eyes as second item in pair?
     textures: [(Handle<Image>, ); GROW_STAGES],
     /// Determine if growing is currently stopped.

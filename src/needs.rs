@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{child::Child, growing::Growable, hitbox::*, loading::TextureAssets, GameState};
+use crate::{child::Child, growing::{Growable, GROW_STAGES}, hitbox::*, loading::TextureAssets, GameState};
 
 const HUNGER_DECREASE_RATE: f32 = 1.0;
 const HUNGER_FULL_VALUE: f32 = 15.0;
@@ -134,6 +134,10 @@ fn handle_needs_decrease(
     mut query: Query<(Entity, &mut Needs, &mut Growable)>
 ) {
     for (entity, mut needs, mut growable) in &mut query {
+        if growable.stage == GROW_STAGES - 1 {
+            continue;
+        }
+
         needs.hunger -= time.delta_seconds() * HUNGER_DECREASE_RATE;
         needs.thirst -= time.delta_seconds() * THIRST_DECREASE_RATE;
 
