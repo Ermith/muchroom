@@ -14,8 +14,6 @@ pub const MAX_PARENT_SPAWN_TIME: f32 = 30.0;
 // Maybe in future replace with texture size?
 pub const PARENT_SIZE: Vec2 = Vec2::new(128.0, 256.0);
 pub const PARENT_WALK_SPEED: f32 = 100.0;
-/// Distance from parent spawn to the start of parent waiting queue.
-pub const PARENT_QUEUE_OFFSET: f32 = 256.0;
 /// Gap between parents in the parent waiting queue.
 pub const PARENT_GAP: f32 = 10.0;
 /// Time after which will parent run out of patience, which results in game over.
@@ -190,7 +188,7 @@ fn handle_random_parent_spawning(
             },
             Walker {
                 destination: Vec2::new(PARENT_QUEUE_X, PARENT_SPAWN_Y)
-                    + Vec2::X * (PARENT_QUEUE_OFFSET + (PARENT_SIZE.x + PARENT_GAP) * avaible_slot as f32),
+                    + Vec2::X * ((PARENT_SIZE.x + PARENT_GAP) * avaible_slot as f32),
             },
             InLayers::new_single(Layer::Parent),
             HasPatienceBar(patience_bar),
