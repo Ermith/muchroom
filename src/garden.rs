@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::{loading::TextureAssets, GameState};
+use crate::{highlight::Highlightable, loading::TextureAssets, GameState};
 
 pub struct GardenPlugin;
 
@@ -28,5 +28,10 @@ fn setup_garden_background(
             crate::hitbox::Hitbox::new(Rect::new(-900.0,  -500.0, 600.0, 270.0)),
             crate::hitbox::InLayers::new_single(crate::hitbox::Layer::Garden),
             crate::GameObject,
+            Highlightable {
+                enabled: false,
+                offset: Vec2::new(-150.0, -115.0),
+                ..default()
+            }
         ));
 }

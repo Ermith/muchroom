@@ -15,6 +15,7 @@ mod camera;
 mod world;
 mod needs;
 mod game_object;
+mod highlight;
 
 use crate::animations::AnimationsPlugin;
 use crate::actions::ActionsPlugin;
@@ -29,6 +30,7 @@ use crate::garden::GardenPlugin;
 use crate::needs::NeedsPlugin;
 use crate::game_object::GameObjectPlugin;
 pub use crate::game_object::GameObject;
+use crate::highlight::HighlightPlugin;
 
 pub const WINDOW_WIDTH: f32 = 1920.0;
 pub const WINDOW_HEIGHT: f32 = 1080.0;
@@ -90,6 +92,7 @@ impl Plugin for GamePlugin {
             GrowingPlugin,
             ParentsPlugin,
             NeedsPlugin,
+            HighlightPlugin,
         ));
 
         #[cfg(debug_assertions)]
