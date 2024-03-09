@@ -183,6 +183,7 @@ fn handle_random_parent_spawning(
                     width: Val::Vw(BAR_WIDTH / crate::WINDOW_WIDTH * 100.0),
                     height: Val::Vh(BAR_HEIGHT / crate::WINDOW_HEIGHT * 100.0),
                     top: Val::Px(BAR_OFFSET),
+                    left: Val::Px(-10000.0),
                     border: UiRect::all(Val::Px(2.)),
                     ..bevy_utils::default()
                 },
