@@ -14,8 +14,12 @@ impl Plugin for LoadingPlugin {
             LoadingState::new(GameState::Loading)
                 .continue_to_state(GameState::Menu)
                 .load_collection::<AudioAssets>()
-                .load_collection::<TextureAssets>(),
-        );
+                .load_collection::<TextureAssets>()
+                
+        )
+        .init_resource::<AnimationAssets>()
+        .init_resource::<TextureAssets>()
+        .add_systems(OnEnter(GameState::Loading), init_animation_resource);
     }
 }
 
@@ -104,7 +108,7 @@ pub struct TextureAssets {
 
     // Derp
     #[asset(path = "textures/mushrooms/derp/patient/derp_parent_patient_body.png")]
-    pub derp_parent_walking_body: Handle<Image>,
+    pub derp_parent_patient_body: Handle<Image>,
     #[asset(path = "textures/mushrooms/derp/patient/derp_parent_patient_eyes_1.png")]
     pub derp_parent_patient_eyes_1: Handle<Image>,
     #[asset(path = "textures/mushrooms/derp/patient/derp_parent_patient_eyes_2.png")]
@@ -201,3 +205,258 @@ pub struct TextureAssets {
     #[asset(path = "textures/mushrooms/poser/nervous/poser_parent_nervous_eyes.png")]
     pub poser_parent_nervous_eyes: Handle<Image>,
 }
+
+impl Default for TextureAssets {
+    fn default() -> Self {
+        Self {
+            bevy: Default::default(),
+            github: Default::default(),
+            debug_mushroom: Default::default(),
+            placeholder_parent: Default::default(),
+            derp_spores: Default::default(),
+            derp_baby_body: Default::default(),
+            derp_child_body: Default::default(),
+            derp_teenager_body: Default::default(),
+            derp_parent_body: Default::default(),
+            derp_parent_walking_body_1: Default::default(),
+            derp_parent_walking_body_2: Default::default(),
+            derp_parent_walking_body_3: Default::default(),
+            derp_parent_walking_body_4: Default::default(),
+            derp_parent_walking_body_5: Default::default(),
+            derp_parent_walking_body_6: Default::default(),
+            derp_parent_walking_eyes: Default::default(),
+            psycho_parent_walking_body_1: Default::default(),
+            psycho_parent_walking_body_2: Default::default(),
+            psycho_parent_walking_body_3: Default::default(),
+            psycho_parent_walking_body_4: Default::default(),
+            psycho_parent_walking_body_5: Default::default(),
+            psycho_parent_walking_eyes: Default::default(),
+            poser_parent_walking_body_1: Default::default(),
+            poser_parent_walking_body_2: Default::default(),
+            poser_parent_walking_body_3: Default::default(),
+            poser_parent_walking_body_4: Default::default(),
+            poser_parent_walking_body_5: Default::default(),
+            poser_parent_walking_body_6: Default::default(),
+            poser_parent_walking_eyes: Default::default(),
+            derp_parent_patient_body: Default::default(),
+            derp_parent_patient_eyes_1: Default::default(),
+            derp_parent_patient_eyes_2: Default::default(),
+            derp_parent_patient_eyes_3: Default::default(),
+            derp_parent_patient_eyes_4: Default::default(),
+            derp_parent_patient_eyes_5: Default::default(),
+            derp_parent_patient_eyes_6: Default::default(),
+            psycho_parent_patient_body: Default::default(),
+            psycho_parent_patient_eyes_1: Default::default(),
+            psycho_parent_patient_eyes_2: Default::default(),
+            psycho_parent_patient_eyes_3: Default::default(),
+            psycho_parent_patient_eyes_4: Default::default(),
+            psycho_parent_patient_eyes_5: Default::default(),
+            poser_parent_patient_body_1: Default::default(),
+            poser_parent_patient_body_2: Default::default(),
+            poser_parent_patient_body_3: Default::default(),
+            poser_parent_patient_body_4: Default::default(),
+            poser_parent_patient_body_5: Default::default(),
+            poser_parent_patient_body_6: Default::default(),
+            poser_parent_patient_eyes_1: Default::default(),
+            poser_parent_patient_eyes_2: Default::default(),
+            poser_parent_patient_eyes_3: Default::default(),
+            poser_parent_patient_eyes_4: Default::default(),
+            poser_parent_patient_eyes_5: Default::default(),
+            derp_parent_nervous_body_1: Default::default(),
+            derp_parent_nervous_body_2: Default::default(), 
+            derp_parent_nervous_body_3: Default::default(),
+            derp_parent_nervous_body_4: Default::default(),
+            derp_parent_nervous_eyes: Default::default(),
+            psycho_parent_nervous_body: Default::default(),
+            psycho_parent_nervous_eyes_1: Default::default(),
+            psycho_parent_nervous_eyes_2: Default::default(),
+            psycho_parent_nervous_eyes_3: Default::default(),
+            psycho_parent_nervous_eyes_4: Default::default(),
+            psycho_parent_nervous_eyes_5: Default::default(),
+            poser_parent_nervous_body_1: Default::default(),
+            poser_parent_nervous_body_2: Default::default(),
+            poser_parent_nervous_body_3: Default::default(),
+            poser_parent_nervous_body_4: Default::default(),
+            poser_parent_nervous_body_5: Default::default(),
+            poser_parent_nervous_body_6: Default::default(),
+            poser_parent_nervous_eyes: Default::default()
+        }
+    }
+}
+
+#[derive(Resource)]
+pub struct AnimationAssets {
+    // Parent Walking Animations
+    pub derp_parent_walking_body: Vec<Handle<Image>>,
+    pub psycho_parent_walking_body: Vec<Handle<Image>>,
+    pub poser_parent_walking_body: Vec<Handle<Image>>,
+
+    pub derp_parent_walking_eyes: Vec<Handle<Image>>,
+    pub psycho_parent_walking_eyes: Vec<Handle<Image>>,
+    pub poser_parent_walking_eyes: Vec<Handle<Image>>,
+
+    // Parent Patient Animations
+    pub derp_parent_patient_body: Vec<Handle<Image>>,
+    pub psycho_parent_patient_body: Vec<Handle<Image>>,
+    pub poser_parent_patient_body: Vec<Handle<Image>>,
+
+    pub derp_parent_patient_eyes: Vec<Handle<Image>>,
+    pub psycho_parent_patient_eyes: Vec<Handle<Image>>,
+    pub poser_parent_patient_eyes: Vec<Handle<Image>>,
+
+    // Parent Nervous Animations
+    pub derp_parent_nervous_body: Vec<Handle<Image>>,
+    pub psycho_parent_nervous_body: Vec<Handle<Image>>,
+    pub poser_parent_nervous_body: Vec<Handle<Image>>,
+
+    pub derp_parent_nervous_eyes: Vec<Handle<Image>>,
+    pub psycho_parent_nervous_eyes: Vec<Handle<Image>>,
+    pub poser_parent_nervous_eyes: Vec<Handle<Image>>,
+}
+
+impl Default for AnimationAssets {
+    fn default() -> Self {
+        Self { derp_parent_walking_body:Default::default(),
+            psycho_parent_walking_body: Default::default(),
+            poser_parent_walking_body: Default::default(),
+            derp_parent_walking_eyes: Default::default(),
+            psycho_parent_walking_eyes: Default::default(),
+            poser_parent_walking_eyes: Default::default(),
+            derp_parent_patient_body: Default::default(),
+            psycho_parent_patient_body: Default::default(),
+            poser_parent_patient_body: Default::default(),
+            derp_parent_patient_eyes: Default::default(),
+            psycho_parent_patient_eyes: Default::default(),
+            poser_parent_patient_eyes: Default::default(),
+            derp_parent_nervous_body: Default::default(),
+            psycho_parent_nervous_body:Default::default(),
+            poser_parent_nervous_body: Default::default(),
+            derp_parent_nervous_eyes: Default::default(),
+            psycho_parent_nervous_eyes: Default::default(),
+            poser_parent_nervous_eyes: Default::default()
+        }
+    }
+}
+
+pub fn init_animation_resource(
+    mut animation_assets: ResMut<AnimationAssets>,
+    texture_assets: Res<TextureAssets>
+) {
+    // Parent Walking Animations
+    //==================================
+
+    // Derp
+    let vec = &mut animation_assets.derp_parent_walking_body;
+    vec.push(texture_assets.derp_parent_walking_body_1.clone());
+    vec.push(texture_assets.derp_parent_walking_body_2.clone());
+    vec.push(texture_assets.derp_parent_walking_body_3.clone());
+    vec.push(texture_assets.derp_parent_walking_body_4.clone());
+    vec.push(texture_assets.derp_parent_walking_body_5.clone());
+    vec.push(texture_assets.derp_parent_walking_body_6.clone());
+    animation_assets.derp_parent_nervous_eyes.push(
+        texture_assets.derp_parent_walking_eyes.clone()
+    );
+
+    // Psycho
+    let vec = &mut animation_assets.psycho_parent_walking_body;
+    vec.push(texture_assets.psycho_parent_walking_body_1.clone());
+    vec.push(texture_assets.psycho_parent_walking_body_2.clone());
+    vec.push(texture_assets.psycho_parent_walking_body_3.clone());
+    vec.push(texture_assets.psycho_parent_walking_body_4.clone());
+    vec.push(texture_assets.psycho_parent_walking_body_5.clone());
+    animation_assets.psycho_parent_nervous_eyes.push(
+        texture_assets.psycho_parent_walking_eyes.clone()
+    );
+
+    // Poser
+    let vec = &mut animation_assets.poser_parent_walking_body;
+    vec.push(texture_assets.poser_parent_walking_body_1.clone());
+    vec.push(texture_assets.poser_parent_walking_body_2.clone());
+    vec.push(texture_assets.poser_parent_walking_body_3.clone());
+    vec.push(texture_assets.poser_parent_walking_body_4.clone());
+    vec.push(texture_assets.poser_parent_walking_body_5.clone());
+    vec.push(texture_assets.poser_parent_walking_body_6.clone());
+    animation_assets.poser_parent_nervous_eyes.push(
+        texture_assets.poser_parent_walking_eyes.clone()
+    );
+
+    // Parent Patient Animations
+    //==================================
+
+    // Derp
+    let vec = &mut animation_assets.derp_parent_patient_eyes;
+    vec.push(texture_assets.derp_parent_patient_eyes_1.clone());
+    vec.push(texture_assets.derp_parent_patient_eyes_2.clone());
+    vec.push(texture_assets.derp_parent_patient_eyes_3.clone());
+    vec.push(texture_assets.derp_parent_patient_eyes_4.clone());
+    vec.push(texture_assets.derp_parent_patient_eyes_5.clone());
+    vec.push(texture_assets.derp_parent_patient_eyes_6.clone());
+    animation_assets.derp_parent_patient_body.push(
+        texture_assets.derp_parent_patient_body.clone()
+    );
+
+    // Psycho
+    let vec = &mut animation_assets.psycho_parent_patient_eyes;
+    vec.push(texture_assets.psycho_parent_patient_eyes_1.clone());
+    vec.push(texture_assets.psycho_parent_patient_eyes_2.clone());
+    vec.push(texture_assets.psycho_parent_patient_eyes_3.clone());
+    vec.push(texture_assets.psycho_parent_patient_eyes_4.clone());
+    vec.push(texture_assets.psycho_parent_patient_eyes_5.clone());
+    animation_assets.psycho_parent_patient_body.push(
+        texture_assets.psycho_parent_patient_body.clone()
+    );
+    
+    // Poser
+    let vec = &mut animation_assets.poser_parent_patient_body;
+    vec.push(texture_assets.poser_parent_patient_body_1.clone());
+    vec.push(texture_assets.poser_parent_patient_body_2.clone());
+    vec.push(texture_assets.poser_parent_patient_body_3.clone());
+    vec.push(texture_assets.poser_parent_patient_body_4.clone());
+    vec.push(texture_assets.poser_parent_patient_body_5.clone());
+    vec.push(texture_assets.poser_parent_patient_body_6.clone());
+
+    let vec = &mut animation_assets.poser_parent_patient_eyes;
+    vec.push(texture_assets.poser_parent_patient_eyes_1.clone());
+    vec.push(texture_assets.poser_parent_patient_eyes_2.clone());
+    vec.push(texture_assets.poser_parent_patient_eyes_3.clone());
+    vec.push(texture_assets.poser_parent_patient_eyes_4.clone());
+    vec.push(texture_assets.poser_parent_patient_eyes_5.clone());
+    
+    // Parent Patient Animations
+    //==================================
+
+    // Derp
+    let vec = &mut animation_assets.derp_parent_nervous_body;
+    vec.push(texture_assets.derp_parent_nervous_body_1.clone());
+    vec.push(texture_assets.derp_parent_nervous_body_2.clone());
+    vec.push(texture_assets.derp_parent_nervous_body_3.clone());
+    vec.push(texture_assets.derp_parent_nervous_body_4.clone());
+    animation_assets.derp_parent_patient_eyes.push(
+        texture_assets.derp_parent_nervous_eyes.clone()
+    );
+
+    // Psycho
+    let vec = &mut animation_assets.psycho_parent_nervous_eyes;
+    vec.push(texture_assets.psycho_parent_nervous_eyes_1.clone());
+    vec.push(texture_assets.psycho_parent_nervous_eyes_2.clone());
+    vec.push(texture_assets.psycho_parent_nervous_eyes_3.clone());
+    vec.push(texture_assets.psycho_parent_nervous_eyes_4.clone());
+    vec.push(texture_assets.psycho_parent_nervous_eyes_5.clone());
+    animation_assets.psycho_parent_nervous_body.push(
+        texture_assets.psycho_parent_nervous_body.clone()
+    );
+    
+    // Poser
+    let vec = &mut animation_assets.poser_parent_nervous_body;
+    vec.push(texture_assets.poser_parent_nervous_body_1.clone());
+    vec.push(texture_assets.poser_parent_nervous_body_2.clone());
+    vec.push(texture_assets.poser_parent_nervous_body_3.clone());
+    vec.push(texture_assets.poser_parent_nervous_body_4.clone());
+    vec.push(texture_assets.poser_parent_nervous_body_5.clone());
+    vec.push(texture_assets.poser_parent_nervous_body_6.clone());
+
+    animation_assets.poser_parent_nervous_eyes.push(
+        texture_assets.poser_parent_nervous_eyes.clone()
+    );
+}
+

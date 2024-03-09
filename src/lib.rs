@@ -1,5 +1,6 @@
 #![allow(clippy::type_complexity)]
 
+mod animations;
 mod actions;
 mod audio;
 mod loading;
