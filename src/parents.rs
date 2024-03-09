@@ -132,7 +132,6 @@ fn handle_random_parent_spawning(
     time: Res<Time>,
     mut timer: ResMut<ParentSpawnTimer>,
     mut parent_queue: ResMut<ParentQueue>,
-    textures: Res<TextureAssets>,
     mut bar_materials: ResMut<Assets<ProgressBarMaterial>>,
     animation_assets: Res<AnimationAssets>,
     camera: Query<(&Camera, &GlobalTransform), With<Camera2d>>,
