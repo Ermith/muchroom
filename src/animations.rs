@@ -29,6 +29,7 @@ impl Animation {
         }
     }
 
+    #[allow(dead_code)]
     pub fn change_frames(mut self, frames: Vec<Handle<Image>>) {
         self.frames = frames;
         self.timer = 0.0;
