@@ -22,7 +22,7 @@ fn setup_garden_background(
         .spawn((
             SpriteBundle {
                 texture: textures.garden_background.clone(),
-                transform: Transform::from_xyz(0., 0., 0.),
+                transform: Transform::from_xyz(0., 0., -5.0),
                 ..default()
             },
             Garden
