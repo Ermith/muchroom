@@ -8,8 +8,8 @@ use crate::{child::Child, growing::Growable, hitbox::*, loading::{AnimationAsset
 use crate::animations::Animation;
 
 pub const MAX_PARENTS: usize = 5;
-pub const MIN_PARENT_SPAWN_TIME: f32 = 1.0;
-pub const MAX_PARENT_SPAWN_TIME: f32 = 3.0;
+pub const MIN_PARENT_SPAWN_TIME: f32 = 10.0;
+pub const MAX_PARENT_SPAWN_TIME: f32 = 30.0;
 
 // Maybe in future replace with texture size?
 pub const PARENT_SIZE: Vec2 = Vec2::new(128.0, 256.0);
