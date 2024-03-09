@@ -1,17 +1,34 @@
 use bevy::prelude::*;
 
-use crate::GameState;
+use crate::{loading::TextureAssets, GameState};
 
 pub const GROW_SPEED: f32 = 1.0;
 pub const GROW_DURATION: f32 = 5.0;
-pub const GROW_FINAL_STAGE: u8 = 2;
+pub const GROW_STAGES: usize = 5;
 
 pub struct GrowingPlugin;
 
 #[derive(Component, Default)]
 pub struct Growable {
     progress: f32,
-    stage: u8,
+    stage: usize,
+    // TODO: add eyes as second item in pair?
+    textures: [(Handle<Image>, ); GROW_STAGES],
+}
+
+impl Growable {
+    pub fn derp(textures: &TextureAssets) -> Self {
+        Self {
+            textures: [
+                (textures.derp_spores.clone(), ),
+                (textures.derp_baby_body.clone(), ),
+                (textures.derp_child_body.clone(), ),
+                (textures.derp_teenager_body.clone(), ),
+                (textures.derp_parent_body.clone(), ),
+            ],
+            ..default()
+        }
+    }
 }
 
 impl Plugin for GrowingPlugin {
@@ -20,9 +37,9 @@ impl Plugin for GrowingPlugin {
     }
 }
 
-fn progress_grow(time: Res<Time>, mut query: Query<&mut Growable>) {
-    for mut growable in &mut query {
-        if growable.stage == GROW_FINAL_STAGE {
+fn progress_grow(time: Res<Time>, mut query: Query<(&mut Growable, &mut Handle<Image>)>) {
+    for (mut growable, mut image) in &mut query {
+        if growable.stage == GROW_STAGES - 1 {
             continue;
         }
 
@@ -32,7 +49,7 @@ fn progress_grow(time: Res<Time>, mut query: Query<&mut Growable>) {
             growable.progress -= GROW_DURATION;
             growable.stage += 1;
 
-            // TODO: change texture/animation
+            *image = growable.textures[growable.stage].0.clone();
         }
     }
 }

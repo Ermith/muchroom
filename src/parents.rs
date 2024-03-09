@@ -4,7 +4,7 @@ use rand::prelude::*;
 
 use bevy::prelude::*;
 
-use crate::{loading::TextureAssets, GameState};
+use crate::{growing::Growable, hitbox::*, loading::TextureAssets, GameState};
 
 pub const MAX_PARENTS: usize = 5;
 pub const MIN_PARENT_SPAWN_TIME: f32 = 10.0;
@@ -119,7 +119,12 @@ fn handle_random_parent_spawning(
     }
 }
 
-fn move_walkers(mut commands: Commands, time: Res<Time>, mut query: Query<(Entity, &mut Transform, &PathWalker)>) {
+fn move_walkers(
+    mut commands: Commands, 
+    time: Res<Time>, 
+    textures: Res<TextureAssets>,
+    mut query: Query<(Entity, &mut Transform, &PathWalker)>
+) {
     for (entity, mut transform, walker) in &mut query {
         let direction = (walker.destination.extend(0.0) - transform.translation).normalize();
         transform.translation += direction * PARENT_WALK_SPEED * time.delta_seconds();
@@ -128,7 +133,22 @@ fn move_walkers(mut commands: Commands, time: Res<Time>, mut query: Query<(Entit
             transform.translation = walker.destination.extend(0.0);
             commands.entity(entity).remove::<PathWalker>();
 
-            // TODO: spawn child
+            commands.spawn((
+                SpriteSheetBundle {
+                    texture: textures.derp_spores.clone(),
+                    transform: transform.clone(),
+                    sprite: Sprite {
+                        custom_size: Some(Vec2::splat(64.0)),
+                        ..default()
+                    },
+                    ..default()
+                },
+                Hitbox::new_centered(Vec2::splat(32.0)),
+                EmitsCollisions::default(),
+                // TODO: add growable component when spores are moved to garden.
+                //Growable::Derp(&textures)
+                //Draggable::default(),
+            ));
         }
     }
 }
