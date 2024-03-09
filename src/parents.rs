@@ -4,7 +4,7 @@ use rand::prelude::*;
 
 use bevy::prelude::*;
 
-use crate::{child::Child, hitbox::*, loading::TextureAssets, GameState};
+use crate::{child::Child, growing::Growable, hitbox::*, loading::TextureAssets, GameState};
 
 pub const MAX_PARENTS: usize = 5;
 pub const MIN_PARENT_SPAWN_TIME: f32 = 10.0;
@@ -34,12 +34,6 @@ pub struct Parent {
     patience_timer: Timer,
 }
 
-/// Occur when parent receive its child.
-#[derive(Event)]
-pub struct ReceiveChildEvent {
-    pub parent_entity: Entity,
-}
-
 #[derive(Component)]
 #[component(storage = "SparseSet")]
 /// Walks to destination. Upon reaching destination this component is removed.
@@ -63,12 +57,11 @@ impl Plugin for ParentsPlugin {
                 )
             ))
             .init_resource::<ParentQueue>()
-            .add_event::<ReceiveChildEvent>()
             .add_systems(Update, (
                 handle_random_parent_spawning,
                 move_walkers,
                 update_patience,
-                read_receive_child_events,
+                read_on_drop_events,
             ).run_if(in_state(GameState::Playing)));
     }
 }
@@ -120,7 +113,8 @@ fn handle_random_parent_spawning(
             PathWalker {
                 destination: spawn_pos.xy() 
                     + Vec2::X * (PARENT_QUEUE_OFFSET + (PARENT_SIZE.x + PARENT_GAP) * avaible_slot as f32),
-            }
+            },
+            InLayers::new_single(Layer::Parent),
         ));
     }
 }
@@ -139,6 +133,8 @@ fn move_walkers(
             transform.translation = walker.destination.extend(0.0);
             commands.entity(entity).remove::<PathWalker>();
 
+            commands.entity(entity).insert(Hitbox::new_centered(Vec2::splat(128.0)));
+
             commands.spawn((
                 SpriteSheetBundle {
                     texture: textures.derp_spores.clone(),
@@ -156,7 +152,9 @@ fn move_walkers(
                     ..default()
                 },
                 InLayers::new_single(Layer::Child),
-                Child
+                Child {
+                    parent_entity: entity,
+                }
             ));
         }
     }
@@ -175,18 +173,22 @@ fn update_patience(time: Res<Time>, mut query: Query<&mut Parent>) {
     }
 }
 
-fn read_receive_child_events(
+fn read_on_drop_events(
     mut commands: Commands,
     mut parent_queue: ResMut<ParentQueue>,
-    mut events: EventReader<ReceiveChildEvent>,
-    query: Query<&Parent>,
+    mut events: EventReader<DropEvent>,
+    child_query: Query<&Child, With<Growable>>,
+    parent_query: Query<&Parent>,
 ) {
     for event in events.read() {
-        let parent = query.get(event.parent_entity).unwrap();
-        parent_queue.0[parent.queue_index] = false;
+        if let Ok(children) = child_query.get(event.dropped_entity) {
+            let parent = parent_query.get(children.parent_entity).unwrap();
 
-        // TODO: animation?, increase score/currency
+            // TODO: animation?, increase score/currency for succesful raising of child
 
-        commands.entity(event.parent_entity).despawn();
+            parent_queue.0[parent.queue_index] = false;
+            commands.entity(children.parent_entity).despawn();
+            commands.entity(event.dropped_entity).despawn();
+        }
     }
 }

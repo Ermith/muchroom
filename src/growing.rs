@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{hitbox::DropEvent, loading::TextureAssets, child::Child, GameState};
+use crate::{child::Child, hitbox::{Draggable, DropEvent}, loading::TextureAssets, GameState};
 
 pub const GROW_SPEED: f32 = 1.0;
 pub const GROW_DURATION: f32 = 5.0;
@@ -33,15 +33,19 @@ impl Growable {
 
 impl Plugin for GrowingPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, (
-            progress_grow,
-            read_on_drop_events,
-        ).run_if(in_state(GameState::Playing)));
+        app
+            .add_systems(Update, (
+                progress_grow,
+                read_on_drop_events,
+            ).run_if(in_state(GameState::Playing)));
     }
 }
 
-fn progress_grow(time: Res<Time>, mut query: Query<(&mut Growable, &mut Handle<Image>)>) {
-    for (mut growable, mut image) in &mut query {
+fn progress_grow(
+    time: Res<Time>,
+    mut query: Query<(&mut Growable, &mut Handle<Image>, &mut Draggable, &Child)>
+) {
+    for (mut growable, mut image, mut draggable, child) in &mut query {
         if growable.stage == GROW_STAGES - 1 {
             continue;
         }
@@ -51,8 +55,11 @@ fn progress_grow(time: Res<Time>, mut query: Query<(&mut Growable, &mut Handle<I
         if growable.progress >= GROW_DURATION {
             growable.progress -= GROW_DURATION;
             growable.stage += 1;
-
             *image = growable.textures[growable.stage].0.clone();
+
+            if growable.stage == GROW_STAGES - 1 {
+                draggable.special_allowed_entities.push(child.parent_entity);
+            }
         }
     }
 }
