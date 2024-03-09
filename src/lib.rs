@@ -1,5 +1,6 @@
 #![allow(clippy::type_complexity)]
 
+mod animations;
 mod actions;
 mod audio;
 mod loading;
@@ -13,6 +14,7 @@ mod child;
 mod camera;
 mod world;
 
+use crate::animations::AnimationsPlugin;
 use crate::actions::ActionsPlugin;
 use crate::audio::InternalAudioPlugin;
 use crate::loading::LoadingPlugin;
@@ -63,6 +65,7 @@ impl Plugin for GamePlugin {
             MenuPlugin,
             GardenPlugin,
             ActionsPlugin,
+            AnimationsPlugin,
             InternalAudioPlugin,
             PlayerPlugin,
             HitboxPlugin,
