@@ -55,6 +55,10 @@ fn debug_spawn_sample_stuff(
         let mut spawn = commands.spawn((
             SpriteBundle {
                 transform: Transform::from_translation(Vec3::new(x, y, 0.0)),
+                sprite: Sprite {
+                    custom_size: Some(image_dim.as_vec2()),
+                    ..Default::default()
+                },
                 texture: image,
                 ..Default::default()
             },
