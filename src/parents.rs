@@ -16,7 +16,7 @@ pub const PARENT_WALK_SPEED: f32 = 100.0;
 /// Gap between parents in the parent waiting queue.
 pub const PARENT_GAP: f32 = 10.0;
 /// Time after which will parent run out of patience, which results in game over.
-pub const PARENT_MAX_PATIENCE: f32 = 1.0;
+pub const PARENT_MAX_PATIENCE: f32 = 120.0;
 /// Y position of parent spawn.
 pub const PARENT_SPAWN_Y: f32 = 400.0;
 /// X position of the start of the parent queue.
