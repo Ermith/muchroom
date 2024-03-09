@@ -54,6 +54,14 @@ pub struct TextureAssets {
     #[asset(path = "textures/parent_placeholder.png")]
     pub placeholder_parent: Handle<Image>,
 
+
+    #[asset(path = "textures/water_leaf_placeholder.png")]
+    pub placeholder_water: Handle<Image>,
+    #[asset(path = "textures/well_placeholder.png")]
+    pub placeholder_water_source: Handle<Image>,
+    #[asset(path = "textures/thirst_bubble.png")]
+    pub placeholder_thirst_bubble: Handle<Image>,
+
     #[asset(path = "textures/mushrooms/derp/derp_spores.png")]
     pub derp_spores: Handle<Image>,
     #[asset(path = "textures/mushrooms/derp/derp_baby_body.png")]
