@@ -89,7 +89,7 @@ fn handle_hunger_decrease(
         if hunger.value == 0.0 && hunger.bubble.is_none() {
             hunger.bubble = Some(commands.spawn(
                 SpriteBundle {
-                    texture: textures.hunger_bubble.clone(),
+                    texture: textures.bubble_worm.clone(),
                     transform: Transform::from_translation(BUBBLE_OFFSET.extend(1.0)),
                     sprite: Sprite {
                         custom_size: Some(Vec2::splat(64.0)),
