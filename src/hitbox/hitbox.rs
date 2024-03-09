@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 /// Rect is in relative coordinates, with the origin at the transform.position of the entity
-#[derive(Component, Debug)]
+#[derive(Component, Debug, Clone)]
 pub struct Hitbox {
     pub rect: Rect,
 }
@@ -40,10 +40,6 @@ impl Hitbox {
     }
 
     #[allow(dead_code)]
-    pub fn contains(&self, point: Vec2) -> bool {
-        self.rect.contains(point)
-    }
-
     pub fn offset(&self) -> Vec2 {
         self.rect.min
     }

@@ -1,15 +1,19 @@
 use bevy::prelude::*;
 
 use crate::GameState;
-use crate::hitbox::*;
+use super::*;
+use super::draggable::*;
 
 pub struct HitboxPlugin;
 
 impl Plugin for HitboxPlugin {
     fn build(&self, app: &mut App) {
         app
+            .init_resource::<super::mouse::MouseCoords>()
+            .add_systems(PreUpdate, super::mouse::mouse_coords_system)
             .add_event::<CollisionEvent>()
-            .add_systems(PreUpdate, emit_collision_events);
+            .add_systems(PreUpdate, emit_collision_events)
+            .add_systems(Update, (initiate_drag, update_drag, end_drag));
         if cfg!(debug_assertions) {
             // H to toggle hitbox gizmos
             app
@@ -31,15 +35,19 @@ fn debug_spawn_sample_stuff(
         let y = rand::random::<f32>() * 600.0 - 300.0;
         let image = textures.debug_mushroom.clone();
         let image_dim = assets.get(&image).unwrap().size();
-        commands.spawn((
+        let mut spawn = commands.spawn((
             SpriteBundle {
                 transform: Transform::from_translation(Vec3::new(x, y, 0.0)),
                 texture: image,
                 ..Default::default()
             },
-            Hitbox::new_offsetless(image_dim.as_vec2()),
+            Hitbox::new_centered(image_dim.as_vec2()),
             EmitsCollisions::default(),
+            Draggable::default(),
         ));
+        if rand::random::<f32>() < 0.5 {
+            spawn.insert(DropBlocker);
+        }
     }
 }
 
@@ -82,9 +90,9 @@ fn log_collision_events(
 
 fn draw_hitbox_gizmos(
     mut gizmos: Gizmos<HitboxGizmos>,
-    hitboxes: Query<(&Transform, &Hitbox, Option<&EmitsCollisions>)>,
+    hitboxes: Query<(&Transform, &Hitbox, Option<&EmitsCollisions>, Option<&DropBlocker>)>,
 ) {
-    for (transform, hitbox, collidable) in hitboxes.iter() {
+    for (transform, hitbox, collidable, drop_blocker) in hitboxes.iter() {
         let color = if let Some(collidable) = collidable {
             if collidable.colliding_with.is_empty() {
                 Color::rgba(0.0, 1.0, 0.0, 1.0)
@@ -94,12 +102,25 @@ fn draw_hitbox_gizmos(
         } else {
             Color::rgba(0.2, 0.2, 0.2, 1.0)
         };
+        let world_rect = hitbox.world_rect(transform);
         gizmos.rect_2d(
-            transform.translation.truncate() + hitbox.offset(),
+            world_rect.center(),
             0.0,
-            hitbox.rect.size(),
+            world_rect.size(),
             color,
         );
+        if drop_blocker.is_some() {
+            gizmos.line_2d(
+                world_rect.min,
+                world_rect.max,
+                Color::rgba(1.0, 0.0, 0.0, 0.2),
+            );
+            gizmos.line_2d(
+                Vec2::new(world_rect.min.x, world_rect.max.y),
+                Vec2::new(world_rect.max.x, world_rect.min.y),
+                Color::rgba(1.0, 0.0, 0.0, 0.2),
+            );
+        }
     }
 }
 
