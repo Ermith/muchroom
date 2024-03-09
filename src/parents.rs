@@ -31,9 +31,11 @@ pub const CHILD_SIZE: f32 = 64.0;
 pub const CHILD_HITBOX_SIZE: f32 = 48.0;
 
 /// How much the bar color wobble tends to return to normalcy
-const FLOATY_NORMALCY_BIAS: f32 = 0.015;
+const FLOATY_NORMALCY_BIAS: f32 = 0.005;
+/// How much the dedrivative of the bar color wobble tends to return to normalcy
+const FLOATY_DER_NORMALCY_BIAS: f32 = 0.009;
 /// How much the color of the bar wobbles
-const FLOATY_COLOR_SCALE: f32 = 0.03;
+const FLOATY_COLOR_SCALE: f32 = 0.005;
 /// Color section count of the bar
 const BAR_SECTIONS: usize = 200;
 /// Height of patience bar in pixels.
@@ -129,19 +131,24 @@ fn handle_random_parent_spawning(
         parent_queue.0[avaible_slot] = true;
 
         let mut floaty_shift = Vec3::new(0.0, 0.0, 0.0);
+        let mut floaty_derivative = Vec3::new(0.0, 0.0, 0.0);
         let bar_colors = (0..BAR_SECTIONS).map(|i| {
             let p = i as f32 / BAR_SECTIONS as f32;
             let r = 0.6 + (1.0 - p) * 0.4 + floaty_shift.x;
             let g = 0.3 + p * 0.4 + floaty_shift.y;
             let b = 0.2 + floaty_shift.z;
 
-            floaty_shift += Vec3::new(
-                rand::thread_rng().gen_range(-1.0..=1.0) * FLOATY_COLOR_SCALE - floaty_shift.x * FLOATY_NORMALCY_BIAS,
-                rand::thread_rng().gen_range(-1.0..=1.0) * FLOATY_COLOR_SCALE - floaty_shift.y * FLOATY_NORMALCY_BIAS,
-                rand::thread_rng().gen_range(-1.0..=1.0) * FLOATY_COLOR_SCALE - floaty_shift.z * FLOATY_NORMALCY_BIAS,
+            floaty_derivative += Vec3::new(
+                rand::thread_rng().gen_range(-1.0..=1.0) * FLOATY_COLOR_SCALE - floaty_shift.x * FLOATY_NORMALCY_BIAS - floaty_derivative.x * FLOATY_DER_NORMALCY_BIAS,
+                rand::thread_rng().gen_range(-1.0..=1.0) * FLOATY_COLOR_SCALE - floaty_shift.y * FLOATY_NORMALCY_BIAS - floaty_derivative.y * FLOATY_DER_NORMALCY_BIAS,
+                rand::thread_rng().gen_range(-1.0..=1.0) * FLOATY_COLOR_SCALE - floaty_shift.z * FLOATY_NORMALCY_BIAS - floaty_derivative.z * FLOATY_DER_NORMALCY_BIAS,
             );
+            floaty_derivative = floaty_derivative.clamp(Vec3::splat(-0.1), Vec3::splat(0.1));
 
-            (1, Color::rgb(r, g, b))
+            floaty_shift += floaty_derivative;
+            floaty_shift = floaty_shift.clamp(Vec3::splat(-1.0), Vec3::splat(1.0));
+
+            (1, Color::rgb(r.clamp(0.0, 1.0), g.clamp(0.0, 1.0), b.clamp(0.0, 1.0)))
         }).collect::<Vec<_>>();
         let mut bar_bar = ProgressBar::new(bar_colors);
         bar_bar.set_progress(1.0);
