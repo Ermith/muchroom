@@ -138,7 +138,7 @@ fn move_walkers(
             commands.spawn((
                 SpriteSheetBundle {
                     texture: textures.derp_spores.clone(),
-                    transform: transform.clone(),
+                    transform: *transform,
                     sprite: Sprite {
                         custom_size: Some(Vec2::splat(CHILD_SIZE)),
                         ..default()
