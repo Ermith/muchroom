@@ -16,6 +16,8 @@ mod world;
 mod needs;
 mod game_object;
 mod highlight;
+#[cfg(debug_assertions)]
+mod cheats;
 
 use crate::animations::AnimationsPlugin;
 use crate::actions::ActionsPlugin;
@@ -31,6 +33,8 @@ use crate::needs::NeedsPlugin;
 use crate::game_object::GameObjectPlugin;
 pub use crate::game_object::GameObject;
 use crate::highlight::HighlightPlugin;
+#[cfg(debug_assertions)]
+use crate::cheats::CheatsPlugin;
 
 pub const WINDOW_WIDTH: f32 = 1920.0;
 pub const WINDOW_HEIGHT: f32 = 1080.0;
@@ -93,6 +97,8 @@ impl Plugin for GamePlugin {
             ParentsPlugin,
             NeedsPlugin,
             HighlightPlugin,
+            #[cfg(debug_assertions)]
+            CheatsPlugin,
         ));
 
         #[cfg(debug_assertions)]
