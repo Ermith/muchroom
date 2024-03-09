@@ -122,13 +122,13 @@ pub fn end_drag(
                 collides_with_blocker = true;
             }
             if let Some(must_be_contained_in) = dragged_draggable.must_be_contained_in.as_ref() {
-                if collided_layers.intersects_layer_set(*must_be_contained_in) && collided_hitbox.contains_entirely(dragged_hitbox, &drag_shadow_transform, &collided_transform) {
+                if collided_layers.intersects_layer_set(*must_be_contained_in) && collided_hitbox.contains_entirely(dragged_hitbox, &collided_transform, &drag_shadow_transform) {
                     is_contained_in_target = true;
                     target = *collision;
                 }
             }
             if let Some(must_intersect_with) = dragged_draggable.must_intersect_with.as_ref() {
-                if collided_layers.intersects_layer_set(*must_intersect_with) && collided_hitbox.intersects(dragged_hitbox, &drag_shadow_transform, &collided_transform) {
+                if collided_layers.intersects_layer_set(*must_intersect_with) && collided_hitbox.intersects(dragged_hitbox, &collided_transform, &drag_shadow_transform) {
                     intersects_with_target = true;
                     target = *collision;
                 }
