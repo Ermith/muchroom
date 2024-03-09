@@ -146,12 +146,14 @@ pub fn end_drag(
                     dropped_on_entity: target,
                 });
                 commands.entity(drag_shadow_entity).despawn();
-            } else {
+            } else if !released_drag{
                 sprite.color = if succeeded_drop { 
-                    Color::rgba(1.5, 1.5, 1.5, 0.5)
+                    Color::rgba(1.5, 1.5, 1.5, 0.7)
                 } else {
-                    Color::rgba(0.7, 0.5, 0.5, 0.5)
+                    Color::rgba(1.2, 0.5, 0.5, 0.7)
                 };
+            } else {
+                commands.entity(drag_shadow_entity).despawn();
             }
         } else {
             commands.entity(drag_shadow_entity).despawn();
