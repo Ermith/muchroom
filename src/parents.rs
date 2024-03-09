@@ -206,7 +206,7 @@ fn handle_random_parent_spawning(
 
         let animation_eyes = commands.spawn((
             SpriteBundle {
-                transform: Transform::from_scale(Vec3::new(0.2,0.2,0.2)),
+                transform: Transform::from_scale(Vec3::new(0.2,0.2, 0.2)).with_translation(Vec3::new(0.0, 0.0, 0.1)),
                 texture: textures.bevy.clone(),
                 ..default()
             },
