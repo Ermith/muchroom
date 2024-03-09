@@ -31,6 +31,11 @@ pub struct DragShadow {
 #[derive(Component, Debug)]
 pub struct DropBlocker;
 
+#[derive(Event, Debug)]
+pub struct DropEvent {
+    pub dropped_entity: Entity,
+}
+
 pub fn initiate_drag(
     mut commands: Commands,
     mouse_buttons: Res<ButtonInput<MouseButton>>,
@@ -80,6 +85,7 @@ pub fn update_drag(
 
 pub fn end_drag(
     mut commands: Commands,
+    mut drop_events: ResMut<Events<DropEvent>>,
     mouse_buttons: Res<ButtonInput<MouseButton>>,
     mut draggables: Query<(Entity, &Hitbox, &mut Draggable, &mut Transform, Option<&DropBlocker>, &InLayers), Without<DragShadow>>,
     non_draggable_hitboxes: Query<(&Hitbox, Option<&DropBlocker>, &InLayers, &Transform), Without<Draggable>,>,
@@ -131,6 +137,7 @@ pub fn end_drag(
                 transform.translation = drag_shadow_transform.translation;
                 transform.translation.z = orig_z;
                 draggable.drag_shadow = None;
+                drop_events.send(DropEvent { dropped_entity: original_entity });
             }
         }
         commands.entity(drag_shadow_entity).despawn();
