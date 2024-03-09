@@ -13,6 +13,7 @@ mod garden;
 mod child;
 mod camera;
 mod world;
+mod hunger;
 
 use crate::animations::AnimationsPlugin;
 use crate::actions::ActionsPlugin;
@@ -24,7 +25,7 @@ use crate::hitbox::HitboxPlugin;
 use crate::growing::GrowingPlugin;
 use crate::parents::ParentsPlugin;
 use crate::garden::GardenPlugin;
-
+use crate::hunger::HungerPlugin;
 
 
 use bevy::app::App;
@@ -71,6 +72,7 @@ impl Plugin for GamePlugin {
             HitboxPlugin,
             GrowingPlugin,
             ParentsPlugin,
+            HungerPlugin,
         ));
 
         #[cfg(debug_assertions)]
