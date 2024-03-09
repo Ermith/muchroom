@@ -32,7 +32,7 @@ pub struct AudioAssets {
     pub flying: Handle<AudioSource>,
 }
 
-#[derive(AssetCollection, Resource)]
+#[derive(AssetCollection, Resource, Default)]
 pub struct TextureAssets {
     #[asset(path = "textures/garden/garden.png")]
     pub garden_background: Handle<Image>,
@@ -207,84 +207,6 @@ pub struct TextureAssets {
     pub poser_parent_nervous_body_6: Handle<Image>,
     #[asset(path = "textures/mushrooms/poser/nervous/poser_parent_nervous_eyes.png")]
     pub poser_parent_nervous_eyes: Handle<Image>,
-}
-
-impl Default for TextureAssets {
-    fn default() -> Self {
-        Self {
-            bevy: Default::default(),
-            github: Default::default(),
-            debug_mushroom: Default::default(),
-            placeholder_parent: Default::default(),
-            derp_spores: Default::default(),
-            derp_baby_body: Default::default(),
-            derp_child_body: Default::default(),
-            derp_teenager_body: Default::default(),
-            derp_parent_body: Default::default(),
-            derp_parent_walking_body_1: Default::default(),
-            derp_parent_walking_body_2: Default::default(),
-            derp_parent_walking_body_3: Default::default(),
-            derp_parent_walking_body_4: Default::default(),
-            derp_parent_walking_body_5: Default::default(),
-            derp_parent_walking_body_6: Default::default(),
-            derp_parent_walking_eyes: Default::default(),
-            psycho_parent_walking_body_1: Default::default(),
-            psycho_parent_walking_body_2: Default::default(),
-            psycho_parent_walking_body_3: Default::default(),
-            psycho_parent_walking_body_4: Default::default(),
-            psycho_parent_walking_body_5: Default::default(),
-            psycho_parent_walking_eyes: Default::default(),
-            poser_parent_walking_body_1: Default::default(),
-            poser_parent_walking_body_2: Default::default(),
-            poser_parent_walking_body_3: Default::default(),
-            poser_parent_walking_body_4: Default::default(),
-            poser_parent_walking_body_5: Default::default(),
-            poser_parent_walking_body_6: Default::default(),
-            poser_parent_walking_eyes: Default::default(),
-            derp_parent_patient_body: Default::default(),
-            derp_parent_patient_eyes_1: Default::default(),
-            derp_parent_patient_eyes_2: Default::default(),
-            derp_parent_patient_eyes_3: Default::default(),
-            derp_parent_patient_eyes_4: Default::default(),
-            derp_parent_patient_eyes_5: Default::default(),
-            derp_parent_patient_eyes_6: Default::default(),
-            psycho_parent_patient_body: Default::default(),
-            psycho_parent_patient_eyes_1: Default::default(),
-            psycho_parent_patient_eyes_2: Default::default(),
-            psycho_parent_patient_eyes_3: Default::default(),
-            psycho_parent_patient_eyes_4: Default::default(),
-            psycho_parent_patient_eyes_5: Default::default(),
-            poser_parent_patient_body_1: Default::default(),
-            poser_parent_patient_body_2: Default::default(),
-            poser_parent_patient_body_3: Default::default(),
-            poser_parent_patient_body_4: Default::default(),
-            poser_parent_patient_body_5: Default::default(),
-            poser_parent_patient_body_6: Default::default(),
-            poser_parent_patient_eyes_1: Default::default(),
-            poser_parent_patient_eyes_2: Default::default(),
-            poser_parent_patient_eyes_3: Default::default(),
-            poser_parent_patient_eyes_4: Default::default(),
-            poser_parent_patient_eyes_5: Default::default(),
-            derp_parent_nervous_body_1: Default::default(),
-            derp_parent_nervous_body_2: Default::default(), 
-            derp_parent_nervous_body_3: Default::default(),
-            derp_parent_nervous_body_4: Default::default(),
-            derp_parent_nervous_eyes: Default::default(),
-            psycho_parent_nervous_body: Default::default(),
-            psycho_parent_nervous_eyes_1: Default::default(),
-            psycho_parent_nervous_eyes_2: Default::default(),
-            psycho_parent_nervous_eyes_3: Default::default(),
-            psycho_parent_nervous_eyes_4: Default::default(),
-            psycho_parent_nervous_eyes_5: Default::default(),
-            poser_parent_nervous_body_1: Default::default(),
-            poser_parent_nervous_body_2: Default::default(),
-            poser_parent_nervous_body_3: Default::default(),
-            poser_parent_nervous_body_4: Default::default(),
-            poser_parent_nervous_body_5: Default::default(),
-            poser_parent_nervous_body_6: Default::default(),
-            poser_parent_nervous_eyes: Default::default()
-        }
-    }
 }
 
 #[derive(Resource, Default)]
