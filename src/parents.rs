@@ -4,7 +4,8 @@ use rand::prelude::*;
 
 use bevy::prelude::*;
 
-use crate::{child::Child, growing::Growable, hitbox::*, loading::TextureAssets, GameState};
+use crate::{child::Child, growing::Growable, hitbox::*, loading::{AnimationAssets, TextureAssets}, GameState};
+use crate::animations::Animation;
 
 pub const MAX_PARENTS: usize = 5;
 pub const MIN_PARENT_SPAWN_TIME: f32 = 10.0;
@@ -78,7 +79,8 @@ fn handle_random_parent_spawning(
     mut timer: ResMut<ParentSpawnTimer>,
     mut parent_queue: ResMut<ParentQueue>,
     textures: Res<TextureAssets>,
-    window_query: Query<&Window>
+    window_query: Query<&Window>,
+    animation_assets: Res<AnimationAssets>
 ) {
     let avaible_slot = parent_queue.0.iter().position(|&slot| !slot);
     if avaible_slot.is_none() {
@@ -100,13 +102,15 @@ fn handle_random_parent_spawning(
             1.0
         );
         parent_queue.0[avaible_slot] = true;
-        commands.spawn((
+
+        let mut t = Transform::from_translation(spawn_pos);
+        t.scale = Vec3::new(0.1, 0.1, 0.1);
+        let parent = commands.spawn((
             Parent {
                 queue_index: avaible_slot,
                 ..default()
             },
-            SpriteBundle {
-                texture: textures.placeholder_parent.clone(),
+            SpatialBundle {
                 transform: Transform::from_translation(spawn_pos),
                 ..default()
             },
@@ -114,8 +118,30 @@ fn handle_random_parent_spawning(
                 destination: spawn_pos.xy() 
                     + Vec2::X * (PARENT_QUEUE_OFFSET + (PARENT_SIZE.x + PARENT_GAP) * avaible_slot as f32),
             },
-            InLayers::new_single(Layer::Parent),
-        ));
+            InLayers::new_single(Layer::Parent)
+        )).id();
+
+        let animation_body = commands.spawn((
+            SpriteSheetBundle {
+                transform: Transform::from_scale(Vec3::new(0.2,0.2,0.2)),
+                texture: textures.bevy.clone(),
+                ..default()
+            },
+            Animation::new(
+                animation_assets.derp_parent_walking_body.clone(), 0.15
+        ))).id();
+
+        let animation_eyes = commands.spawn((
+            SpriteBundle {
+                transform: Transform::from_scale(Vec3::new(0.2,0.2,0.2)),
+                texture: textures.bevy.clone(),
+                ..default()
+            },
+            Animation::new(
+                animation_assets.derp_parent_walking_eyes.clone(), 0.15,
+        ))).id();
+
+        commands.entity(parent).push_children(&[animation_body, animation_eyes]);
     }
 }
 

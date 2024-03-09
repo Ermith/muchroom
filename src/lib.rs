@@ -11,6 +11,7 @@ mod growing;
 mod parents;
 mod child;
 
+use crate::animations::AnimationsPlugin;
 use crate::actions::ActionsPlugin;
 use crate::audio::InternalAudioPlugin;
 use crate::loading::LoadingPlugin;
@@ -47,6 +48,7 @@ impl Plugin for GamePlugin {
             LoadingPlugin,
             MenuPlugin,
             ActionsPlugin,
+            AnimationsPlugin,
             InternalAudioPlugin,
             PlayerPlugin,
             HitboxPlugin,

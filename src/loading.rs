@@ -19,7 +19,7 @@ impl Plugin for LoadingPlugin {
         )
         .init_resource::<AnimationAssets>()
         .init_resource::<TextureAssets>()
-        .add_systems(OnEnter(GameState::Loading), init_animation_resource);
+        .add_systems(OnExit(GameState::Loading), init_animation_resource);
     }
 }
 
@@ -284,7 +284,7 @@ impl Default for TextureAssets {
     }
 }
 
-#[derive(Resource)]
+#[derive(Resource, Default)]
 pub struct AnimationAssets {
     // Parent Walking Animations
     pub derp_parent_walking_body: Vec<Handle<Image>>,
@@ -314,30 +314,6 @@ pub struct AnimationAssets {
     pub poser_parent_nervous_eyes: Vec<Handle<Image>>,
 }
 
-impl Default for AnimationAssets {
-    fn default() -> Self {
-        Self { derp_parent_walking_body:Default::default(),
-            psycho_parent_walking_body: Default::default(),
-            poser_parent_walking_body: Default::default(),
-            derp_parent_walking_eyes: Default::default(),
-            psycho_parent_walking_eyes: Default::default(),
-            poser_parent_walking_eyes: Default::default(),
-            derp_parent_patient_body: Default::default(),
-            psycho_parent_patient_body: Default::default(),
-            poser_parent_patient_body: Default::default(),
-            derp_parent_patient_eyes: Default::default(),
-            psycho_parent_patient_eyes: Default::default(),
-            poser_parent_patient_eyes: Default::default(),
-            derp_parent_nervous_body: Default::default(),
-            psycho_parent_nervous_body:Default::default(),
-            poser_parent_nervous_body: Default::default(),
-            derp_parent_nervous_eyes: Default::default(),
-            psycho_parent_nervous_eyes: Default::default(),
-            poser_parent_nervous_eyes: Default::default()
-        }
-    }
-}
-
 pub fn init_animation_resource(
     mut animation_assets: ResMut<AnimationAssets>,
     texture_assets: Res<TextureAssets>
@@ -353,7 +329,7 @@ pub fn init_animation_resource(
     vec.push(texture_assets.derp_parent_walking_body_4.clone());
     vec.push(texture_assets.derp_parent_walking_body_5.clone());
     vec.push(texture_assets.derp_parent_walking_body_6.clone());
-    animation_assets.derp_parent_nervous_eyes.push(
+    animation_assets.derp_parent_walking_eyes.push(
         texture_assets.derp_parent_walking_eyes.clone()
     );
 
