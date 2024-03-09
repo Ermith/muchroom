@@ -35,7 +35,7 @@ const BAR_SECTIONS: usize = 200;
 /// Height of patience bar in pixels.
 const BAR_HEIGHT: f32 = 20.0;
 /// Y offset of patience bar from parent.
-const BAR_OFFSET: f32 = 100.0;
+const BAR_OFFSET: f32 = 85.0;
 
 pub struct ParentsPlugin;
 
