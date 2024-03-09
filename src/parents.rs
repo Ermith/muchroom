@@ -4,7 +4,7 @@ use rand::prelude::*;
 
 use bevy::prelude::*;
 
-use crate::{child::Child, growing::Growable, hitbox::*, loading::TextureAssets, GameState};
+use crate::{child::Child, growing::Growable, hitbox::*, hunger::Hunger, loading::TextureAssets, GameState};
 
 pub const MAX_PARENTS: usize = 5;
 pub const MIN_PARENT_SPAWN_TIME: f32 = 10.0;
@@ -154,7 +154,8 @@ fn move_walkers(
                 InLayers::new_single(Layer::Child),
                 Child {
                     parent_entity: entity,
-                }
+                },
+                Hunger::default(),
             ));
         }
     }

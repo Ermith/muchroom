@@ -15,7 +15,7 @@ pub struct Growable {
     // TODO: add eyes as second item in pair?
     textures: [(Handle<Image>, ); GROW_STAGES],
     /// Determine if growing is currently stopped.
-    stopped: bool,
+    pub stopped: bool,
 }
 
 impl Growable {
