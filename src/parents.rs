@@ -16,19 +16,28 @@ pub const PARENT_WALK_SPEED: f32 = 100.0;
 pub const PARENT_QUEUE_OFFSET: f32 = 256.0;
 /// Gap between parents in the parent waiting queue.
 pub const PARENT_GAP: f32 = 10.0;
-
-//pub type ParentList = [MAX_PARENTS; Entity];
+/// Time after which will parent run out of patience, which results in game over.
+pub const PARENT_MAX_PATIENCE: f32 = 120.0;
 
 pub struct ParentsPlugin;
 
-#[derive(Component, Default)]
+#[derive(Component)]
 pub struct Parent {
+    /// Position of parent in parent queue/
     queue_index: usize,
+    patience_timer: Timer,
+}
+
+/// Occur when parent receive its child.
+#[derive(Event)]
+pub struct ReceiveChildEvent {
+    pub parent_entity: Entity,
 }
 
 #[derive(Component)]
 #[component(storage = "SparseSet")]
-pub struct PathWalker {
+/// Walks to destination. Upon reaching destination this component is removed.
+struct PathWalker {
     destination: Vec2,
 }
 
@@ -48,7 +57,19 @@ impl Plugin for ParentsPlugin {
                 )
             ))
             .init_resource::<ParentQueue>()
-            .add_systems(Update, (handle_random_parent_spawning, move_walkers).run_if(in_state(GameState::Playing)));
+            .add_event::<ReceiveChildEvent>()
+            .add_systems(Update, (
+                handle_random_parent_spawning,
+                move_walkers,
+                update_patience,
+                read_receive_child_events,
+            ).run_if(in_state(GameState::Playing)));
+    }
+}
+
+impl Default for Parent {
+    fn default() -> Self {
+        Self { queue_index: 0, patience_timer: Timer::from_seconds(PARENT_MAX_PATIENCE, TimerMode::Once) }
     }
 }
 
@@ -83,6 +104,7 @@ fn handle_random_parent_spawning(
         commands.spawn((
             Parent {
                 queue_index: avaible_slot,
+                ..default()
             },
             SpriteBundle {
                 texture: textures.placeholder_parent.clone(),
@@ -105,13 +127,37 @@ fn move_walkers(mut commands: Commands, time: Res<Time>, mut query: Query<(Entit
         if Vec2::distance(transform.translation.xy(), walker.destination) < PARENT_WALK_SPEED * time.delta_seconds() {
             transform.translation = walker.destination.extend(0.0);
             commands.entity(entity).remove::<PathWalker>();
+
+            // TODO: spawn child
         }
     }
 }
 
-/*
-* TODO:
-* - random spawning
-* - lose condition
-* - variances and childrens
-*/
+fn update_patience(time: Res<Time>, mut query: Query<&mut Parent>) {
+    for mut parent in &mut query {
+        parent.patience_timer.tick(time.delta());
+
+        // TODO: update animation
+
+        if parent.patience_timer.just_finished() {
+            // TODO: Game Over
+            println!("GAME OVER!");
+        }
+    }
+}
+
+fn read_receive_child_events(
+    mut commands: Commands,
+    mut parent_queue: ResMut<ParentQueue>,
+    mut events: EventReader<ReceiveChildEvent>,
+    query: Query<&Parent>,
+) {
+    for event in events.read() {
+        let parent = query.get(event.parent_entity).unwrap();
+        parent_queue.0[parent.queue_index] = false;
+
+        // TODO: animation?, increase score/currency
+
+        commands.entity(event.parent_entity).despawn();
+    }
+}
