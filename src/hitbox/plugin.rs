@@ -28,6 +28,7 @@ impl Plugin for HitboxPlugin {
     }
 }
 
+#[allow(dead_code)]
 fn debug_spawn_sample_stuff(
     mut commands: Commands,
     textures: Res<crate::loading::TextureAssets>,
