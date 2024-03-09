@@ -234,10 +234,12 @@ fn move_walkers(
 
             commands.entity(entity).insert(Hitbox::new_centered(Vec2::splat(128.0)));
 
+            let mut spore_transform = *transform;
+            spore_transform.translation += Vec3::new(0.0, 0.0, 1.5);
             commands.spawn((
                 SpriteSheetBundle {
                     texture: textures.derp_spores.clone(),
-                    transform: *transform,
+                    transform: spore_transform,
                     sprite: Sprite {
                         custom_size: Some(Vec2::splat(CHILD_SIZE)),
                         ..default()
