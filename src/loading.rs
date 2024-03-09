@@ -40,6 +40,8 @@ pub struct TextureAssets {
     pub bucket_full: Handle<Image>,
     #[asset(path = "textures/garden/bucket_empty.png")]
     pub bucket_empty: Handle<Image>,
+    #[asset(path = "textures/garden/worm.png")]
+    pub worm: Handle<Image>,
 
     #[asset(path = "textures/bevy.png")]
     pub bevy: Handle<Image>,
