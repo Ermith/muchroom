@@ -4,7 +4,7 @@ use rand::prelude::*;
 use bevy::prelude::*;
 use bevy_progressbar::{ProgressBar, ProgressBarBundle, ProgressBarMaterial};
 
-use crate::{child::Child, growing::Growable, hitbox::*, loading::{AnimationAssets, TextureAssets}, GameState};
+use crate::{child::Child, growing::Growable, hitbox::*, hunger::Hunger, loading::{AnimationAssets, TextureAssets}, GameState};
 use crate::animations::Animation;
 
 pub const MAX_PARENTS: usize = 5;
@@ -20,6 +20,10 @@ pub const PARENT_QUEUE_OFFSET: f32 = 256.0;
 pub const PARENT_GAP: f32 = 10.0;
 /// Time after which will parent run out of patience, which results in game over.
 pub const PARENT_MAX_PATIENCE: f32 = 120.0;
+/// Y position of parent spawn.
+pub const PARENT_SPAWN_Y: f32 = 400.0;
+/// X position of the start of the parent queue.
+pub const PARENT_QUEUE_X: f32 = -900.0;
 
 /// Size of spawned children.
 pub const CHILD_SIZE: f32 = 64.0;
@@ -35,7 +39,7 @@ const BAR_SECTIONS: usize = 200;
 /// Height of patience bar in pixels.
 const BAR_HEIGHT: f32 = 20.0;
 /// Y offset of patience bar from parent.
-const BAR_OFFSET: f32 = 100.0;
+const BAR_OFFSET: f32 = 70.0;
 
 pub struct ParentsPlugin;
 
@@ -96,9 +100,9 @@ fn handle_random_parent_spawning(
     mut timer: ResMut<ParentSpawnTimer>,
     mut parent_queue: ResMut<ParentQueue>,
     textures: Res<TextureAssets>,
-    window_query: Query<&Window>,
     mut bar_materials: ResMut<Assets<ProgressBarMaterial>>,
     animation_assets: Res<AnimationAssets>,
+    camera: Query<(&Camera, &GlobalTransform), With<Camera2d>>,
 ) {
     let avaible_slot = parent_queue.0.iter().position(|&slot| !slot);
     if avaible_slot.is_none() {
@@ -113,10 +117,11 @@ fn handle_random_parent_spawning(
         ));
         timer.0.reset();
 
-        let window = window_query.single();
+        let (camera, camera_transform) = camera.single();
+        let spawn_x = camera.viewport_to_world_2d(camera_transform, Vec2::new(-PARENT_SIZE.x, 0.0)).unwrap().x;
         let spawn_pos = Vec3::new(
-            -window.width() / 2.0 - PARENT_SIZE.x / 2.0,
-            window.height() / 2.0 - PARENT_SIZE.y / 2.0,
+            spawn_x,
+            PARENT_SPAWN_Y,
             1.0
         );
         parent_queue.0[avaible_slot] = true;
@@ -140,16 +145,16 @@ fn handle_random_parent_spawning(
         bar_bar.set_progress(1.0);
         let bar_style = Style {
             position_type: PositionType::Absolute,
-            width: Val::Px(PARENT_SIZE.x - 4.0),
-            height: Val::Px(BAR_HEIGHT - 4.0),
+            width: Val::Vw((PARENT_SIZE.x - 4.0) / 1920.0 * 100.0),
+            height: Val::Vh((BAR_HEIGHT - 4.0) / 1080.0 * 100.0),
             ..bevy_utils::default()
         };
 
         let bar_container = commands.spawn(NodeBundle {
             style: Style {
                 position_type: PositionType::Absolute,
-                width: Val::Px(PARENT_SIZE.x),
-                height: Val::Px(BAR_HEIGHT),
+                width: Val::Vw(PARENT_SIZE.x / 1920.0 * 100.0),
+                height: Val::Vh(BAR_HEIGHT / 1080.0 * 100.0),
                 top: Val::Px(BAR_OFFSET),
                 border: UiRect::all(Val::Px(2.)),
                 ..bevy_utils::default()
@@ -182,7 +187,7 @@ fn handle_random_parent_spawning(
                 ..default()
             },
             Walker {
-                destination: spawn_pos.xy() 
+                destination: Vec2::new(PARENT_QUEUE_X, PARENT_SPAWN_Y)
                     + Vec2::X * (PARENT_QUEUE_OFFSET + (PARENT_SIZE.x + PARENT_GAP) * avaible_slot as f32),
             },
             InLayers::new_single(Layer::Parent),
@@ -229,10 +234,12 @@ fn move_walkers(
 
             commands.entity(entity).insert(Hitbox::new_centered(Vec2::splat(128.0)));
 
+            let mut spore_transform = *transform;
+            spore_transform.translation += Vec3::new(0.0, 0.0, 1.5);
             commands.spawn((
                 SpriteSheetBundle {
                     texture: textures.derp_spores.clone(),
-                    transform: *transform,
+                    transform: spore_transform,
                     sprite: Sprite {
                         custom_size: Some(Vec2::splat(CHILD_SIZE)),
                         ..default()
@@ -248,7 +255,8 @@ fn move_walkers(
                 InLayers::new_single(Layer::Child),
                 Child {
                     parent_entity: entity,
-                }
+                },
+                Hunger::default(),
             ));
         }
     }
@@ -256,33 +264,30 @@ fn move_walkers(
 
 fn update_patience(
     time: Res<Time>,
-    mut query: Query<(&mut Parent, &Transform, Option<&HasPatienceBar>)>,
+    mut query: Query<(&mut Parent, &Transform, Option<&HasPatienceBar>, Option<&Walker>)>,
     mut bars: Query<(&mut ProgressBar, &bevy::prelude::Parent), (With<PatienceBar>, Without<Parent>)>,
     mut styles: Query<&mut Style, (Without<Parent>, Without<ProgressBar>)>,
     camera: Query<(&Camera, &GlobalTransform), (With<Camera2d>, Without<Parent>, Without<PatienceBar>)>,
 ) {
     // moving the bar really shouldn't be here but I'm too lazy to refactor it
     let (camera, camera_trans) = camera.single();
-    for (mut parent, trans, patience_bar) in &mut query {
+    for (mut parent, trans, patience_bar, walker) in &mut query {
         if let Some(patience_bar) = patience_bar {
             if let Ok((mut bar, ui_parent)) = bars.get_mut(patience_bar.0) {
                 bar.set_progress(parent.patience_timer.fraction_remaining());
                 while bar.sections.len() > (parent.patience_timer.fraction_remaining() * BAR_SECTIONS as f32) as usize {
                     bar.sections.pop();
                 }
-                let mut bar_pos = camera.world_to_viewport(camera_trans, trans.translation).unwrap();
+                let bar_trans = trans.translation - Vec3::Y * BAR_OFFSET - Vec3::new(PARENT_SIZE.x / 2.0, BAR_HEIGHT / 2.0, 0.0);
+                let bar_pos = camera.world_to_viewport(camera_trans, bar_trans).unwrap();
                 let mut style = styles.get_mut(ui_parent.get()).unwrap();
-                if let Val::Px(w) = style.width {
-                    bar_pos.x -= w / 2.0;
-                }
-                if let Val::Px(h) = style.height {
-                    bar_pos.y -= h / 2.0;
-                }
-                bar_pos.y += BAR_OFFSET;
                 style.left = Val::Px(bar_pos.x);
                 style.top = Val::Px(bar_pos.y);
             }
         }
+
+        // no impatience until you arrive
+        if walker.is_some() { continue };
 
         parent.patience_timer.tick(time.delta());
 
