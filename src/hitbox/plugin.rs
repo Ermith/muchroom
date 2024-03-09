@@ -18,7 +18,7 @@ impl Plugin for HitboxPlugin {
         if cfg!(debug_assertions) {
             // H to toggle hitbox gizmos
             app
-                .add_systems(OnEnter(GameState::Playing), debug_spawn_sample_stuff) // TODO: remove
+                // .add_systems(OnEnter(GameState::Playing), debug_spawn_sample_stuff) // TODO: remove
                 .init_gizmo_group::<HitboxGizmos>()
                 // .add_systems(Update, log_collision_events);
                 // .add_systems(Update, log_drop_events)
