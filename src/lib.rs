@@ -59,6 +59,7 @@ impl Plugin for GamePlugin {
             camera::CameraPlugin {
                 scaling_mode: camera::CameraScalingMode::FitBoth,
             },
+            bevy_progressbar::ProgressBarPlugin,
             MenuPlugin,
             GardenPlugin,
             ActionsPlugin,
