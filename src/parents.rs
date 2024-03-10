@@ -415,7 +415,7 @@ fn move_walkers(
                     texture: spores_texture,
                     transform: spore_transform,
                     sprite: Sprite {
-                        custom_size: Some(Vec2::splat(CHILD_SIZE)),
+                        custom_size: Some(Vec2::splat(CHILD_SIZE * SPORES_SIZE_MODIFIER)),
                         ..default()
                     },
                     ..default()
