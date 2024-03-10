@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use rand::prelude::*;
-use bevy::prelude::*;
+use bevy::{prelude::*, sprite::Anchor};
 use bevy_progressbar::{ProgressBar, ProgressBarBundle, ProgressBarMaterial};
 
 use crate::{
@@ -437,7 +437,8 @@ fn move_walkers(
 
             
             let mut anim = AnimationBundle::new_with_size(vec![ textures.nothing.clone() ], 0.1, CHILD_HITBOX_SIZE, 0.6);
-            anim.sprite_sheet.transform = Transform::from_translation(Vec3::new(0.0, 50.0, 0.1));
+            anim.sprite_sheet.transform = Transform::from_translation(Vec3::new(0.0, 0.0, 6.0)).with_scale(Vec3::new(1.5, 1.5, 1.0));
+            anim.sprite_sheet.sprite.anchor = Anchor::BottomCenter;
             let eyes_visual = commands.spawn((
                 EyesVisual,
                 anim
