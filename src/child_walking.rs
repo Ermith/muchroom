@@ -3,7 +3,7 @@ use rand::{thread_rng, Rng};
 
 use crate::hitbox::{Hitbox, InLayers};
 
-pub const DEFAULT_CHILD_MAX_SPEED: f32 = 350.0;
+pub const DEFAULT_CHILD_MAX_SPEED: f32 = 250.0;
 pub const CHILD_WALKING_CHANGE: f32 = 50.0;
 
 #[derive(Component, Debug)]

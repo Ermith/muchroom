@@ -17,7 +17,8 @@ pub struct Growable {
     _textures: [(Handle<Image>, ); GROW_STAGES],
     /// Determine if growing is currently stopped.
     pub stopped_by_needs: bool,
-    pub stopped_by_psycho: bool
+    pub stopped_by_psycho: bool,
+    pub is_changed: bool
 }
 
 impl Growable {
@@ -92,6 +93,7 @@ fn progress_grow(
         if growable.progress >= GROW_DURATION {
             growable.progress -= GROW_DURATION;
             growable.stage += 1;
+            growable.is_changed = true;
 
             if growable.stage == 1 {
                 hitbox.rect.min.y += CHILD_SIZE / 4.0;
@@ -125,31 +127,49 @@ fn progress_grow(
 
 fn update_child_visual(
     texture_assets: Res<TextureAssets>,
-    mut child_query: Query<(Entity, &Child, &Growable, &mut Animation)>,
+    animation_assets: Res<AnimationAssets>,
+    mut child_query: Query<(Entity, &Child, &mut Growable, &mut Animation)>,
     children_query: Query<&Children>,
-    mut animation_query: Query<&mut Animation, (With<EyesVisual>, Without<Child>)>
+    mut animation_query: Query<&mut Animation, (With<EyesVisual>, Without<Child>)>,
 ) {
-    for (entity, mushroom_child, growable, mut animation) in child_query.iter_mut() {
-        animation.change_frames(get_child_frames(
+    for (entity, mushroom_child, mut growable, mut animation) in child_query.iter_mut() {
+        if !growable.is_changed { continue; }
+
+        let mut body_frames = get_child_frames(
             &texture_assets,
             mushroom_child.species,
             growable.stage,
             false
-        ));
+        );
+
+        let mut eyes_frames = get_child_frames(
+            &texture_assets,
+            mushroom_child.species,
+            growable.stage,
+            true
+        );
+
+        if mushroom_child.species == Species::Poser && growable.stage == 4 {
+            body_frames = animation_assets.poser_parent_walking_body.clone();
+            eyes_frames = animation_assets.poser_parent_walking_eyes.clone();
+        }
+
+        if mushroom_child.species == Species::Psycho && growable.stage == 4 {
+            body_frames = animation_assets.psycho_child_hypnotic_body.clone();
+            eyes_frames = animation_assets.psycho_child_hypnotic_eyes.clone();
+        }
+
+        animation.change_frames(body_frames);
 
         // should be only 1
         let children = children_query.get(entity).unwrap();
         for child in children.iter() {
             if let Ok(mut anim) = animation_query.get_mut(*child) {
-                anim.change_frames(get_child_frames(
-                    &texture_assets,
-                    mushroom_child.species,
-                    growable.stage,
-                    true
-                ));
+                anim.change_frames(eyes_frames.clone());
             }
-
         }
+
+        growable.is_changed = false;
     }
 }
 
