@@ -53,7 +53,9 @@ fn handle_highlight_visibility(
         }
         
         if !highlightable.enabled && highlightable.highlight_entity.is_some() {
-            commands.entity(highlightable.highlight_entity.unwrap()).despawn();
+            if let Some(mut entity) = commands.get_entity(highlightable.highlight_entity.unwrap()) {
+                entity.despawn();
+            }
             highlightable.highlight_entity = None;
         }
     }
