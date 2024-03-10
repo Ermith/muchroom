@@ -4,13 +4,15 @@ use crate::{child::Child, growing::{Growable, GROW_STAGES}, hitbox::*, loading::
 
 const HUNGER_DECREASE_RATE: f32 = 1.0;
 const HUNGER_FULL_VALUE: f32 = 15.0;
-const HUNGER_BUBBLE_OFFSET: Vec2 = Vec2::splat(48.0);
+const HUNGER_BUBBLE_OFFSET: Vec2 = Vec2::new(48.0, 96.0);
 const FOOD_SOURCE_SPAWN_POS: Vec2 = Vec2::new(750.0, 90.0);
 
 const THIRST_DECREASE_RATE: f32 = 1.0;
 const THIRST_FULL_VALUE: f32 = 10.0;
-const THIRST_BUBBLE_OFFSET: Vec2 = Vec2::new(-48.0, 48.0);
+const THIRST_BUBBLE_OFFSET: Vec2 = Vec2::new(-48.0, 96.0);
 const WATER_SOURCE_SPAWN_POS: Vec2 = Vec2::new(750.0, -250.0);
+
+const BUBBLES_Z: f32 = 6.0;
 
 /// Size of food/water.
 const ITEM_SIZE: Vec2 = Vec2::splat(128.0);
@@ -153,7 +155,7 @@ fn handle_needs_decrease(
             needs.hunger_bubble = Some(commands.spawn(
                 SpriteBundle {
                     texture: textures.bubble_worm.clone(),
-                    transform: Transform::from_translation(HUNGER_BUBBLE_OFFSET.extend(1.0)),
+                    transform: Transform::from_translation(HUNGER_BUBBLE_OFFSET.extend(BUBBLES_Z)),
                     sprite: Sprite {
                         custom_size: Some(BUBBLE_SIZE),
                         ..default()
@@ -170,7 +172,7 @@ fn handle_needs_decrease(
             needs.thirst_bubble = Some(commands.spawn(
                 SpriteBundle {
                     texture: textures.bubble_water.clone(),
-                    transform: Transform::from_translation(THIRST_BUBBLE_OFFSET.extend(1.0)),
+                    transform: Transform::from_translation(THIRST_BUBBLE_OFFSET.extend(BUBBLES_Z)),
                     sprite: Sprite {
                         custom_size: Some(BUBBLE_SIZE),
                         ..default()

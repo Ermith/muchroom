@@ -30,6 +30,8 @@ impl Plugin for LoadingPlugin {
 pub struct AudioAssets {
     #[asset(path = "audio/flying.ogg")]
     pub flying: Handle<AudioSource>,
+    #[asset(path = "audio/mushroom dance_0.ogg")]
+    pub mushroom_dance: Handle<AudioSource>,
 }
 
 #[derive(AssetCollection, Resource, Default)]
@@ -63,6 +65,8 @@ pub struct TextureAssets {
     #[asset(path = "textures/garden/bubble_water.png")]
     pub bubble_water: Handle<Image>,
 
+    #[asset(path = "textures/mushroom_default_baby_icon.png")]
+    pub mushroom_default_baby_icon: Handle<Image>,
     #[asset(path = "textures/bevy.png")]
     pub bevy: Handle<Image>,
     #[asset(path = "textures/github.png")]
@@ -72,6 +76,10 @@ pub struct TextureAssets {
     #[asset(path = "textures/parent_placeholder.png")]
     pub placeholder_parent: Handle<Image>,
 
+    #[asset(path = "textures/music_icon.png")]
+    pub music_icon: Handle<Image>,
+    #[asset(path = "textures/music_icon_off.png")]
+    pub music_icon_off: Handle<Image>,
 
     #[asset(path = "textures/water_leaf_placeholder.png")]
     pub placeholder_water: Handle<Image>,

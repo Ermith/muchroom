@@ -98,6 +98,7 @@ fn progress_grow(
                 hitbox.rect.max.y += CHILD_SIZE / 4.0;
 
                 sprite.anchor = Anchor::BottomCenter;
+                sprite.custom_size = Some(Vec2::splat(CHILD_SIZE));
             }
 
             if growable.stage == GROW_STAGES - 1 {
