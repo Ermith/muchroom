@@ -1,4 +1,4 @@
-use bevy::{prelude::*, window::WindowTheme};
+use bevy::prelude::*;
 
 pub struct AnimationsPlugin;
 

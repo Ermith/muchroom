@@ -14,7 +14,7 @@ pub struct Growable {
     progress: f32,
     pub stage: usize,
     // TODO: add eyes as second item in pair?
-    textures: [(Handle<Image>, ); GROW_STAGES],
+    _textures: [(Handle<Image>, ); GROW_STAGES],
     /// Determine if growing is currently stopped.
     pub stopped_by_needs: bool,
     pub stopped_by_psycho: bool,
@@ -24,7 +24,7 @@ pub struct Growable {
 impl Growable {
     pub fn derp(textures: &TextureAssets) -> Self {
         Self {
-            textures: [
+            _textures: [
                 (textures.derp_spores.clone(), ),
                 (textures.derp_baby_body.clone(), ),
                 (textures.derp_child_body.clone(), ),
@@ -37,7 +37,7 @@ impl Growable {
 
     pub fn psycho(textures: &TextureAssets) -> Self {
         Self {
-            textures: [
+            _textures: [
                 (textures.psycho_spores.clone(), ),
                 (textures.psycho_baby_body.clone(), ),
                 (textures.psycho_child_body.clone(), ),
@@ -50,7 +50,7 @@ impl Growable {
 
     pub fn poser(textures: &TextureAssets) -> Self {
         Self {
-            textures: [
+            _textures: [
                 (textures.poser_spores.clone(), ),
                 (textures.poser_baby_body.clone(), ),
                 (textures.poser_child_body.clone(), ),
@@ -111,6 +111,12 @@ fn progress_grow(
                     add_hypnotic_behaviour(&mut commands, entity, &animation_assets);
                 }
 
+                commands.entity(entity).insert(Pulsing {
+                    min: 0.95,
+                    max: 1.05,
+                    speed: 0.2,
+                    ..default()
+                });
                 if child.species == Species::Poser {
                     commands.entity(entity).insert(ChildWalking::default());
                 }

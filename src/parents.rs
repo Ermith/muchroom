@@ -5,28 +5,16 @@ use bevy::{prelude::*, sprite::Anchor};
 use bevy_progressbar::{ProgressBar, ProgressBarBundle, ProgressBarMaterial};
 
 use crate::{
-    animations::AnimationBundle,
-    child::*,
-    growing::Growable,
-    highlight::Highlightable,
-    hitbox::*,
-    loading::*,
-    needs::*,
-    pulsing::Pulsing,
-    GameState
+    animations::AnimationBundle, child::*, difficulty::{Difficulty, START_PARENT_SPAWN_TIME, START_PATIENCE}, growing::Growable, highlight::Highlightable, hitbox::*, loading::*, needs::*, pulsing::Pulsing, GameState
 };
 
 pub const MAX_PARENTS: usize = 13;
-pub const MIN_PARENT_SPAWN_TIME: f32 = 10.0;
-pub const MAX_PARENT_SPAWN_TIME: f32 = 30.0;
 
 // Maybe in future replace with texture size?
 pub const PARENT_SIZE: Vec2 = Vec2::new(128.0, 256.0);
 pub const PARENT_WALK_SPEED: f32 = 100.0;
 /// Gap between parents in the parent waiting queue.
 pub const PARENT_GAP: f32 = 10.0;
-/// Time after which will parent run out of patience, which results in game over.
-pub const PARENT_MAX_PATIENCE: f32 = 120.0;
 /// Score received at max patiance.
 pub const PARENT_MAX_PATIENCE_SCORE: f32 = 10.0;
 /// Y position of parent spawn.
@@ -91,7 +79,7 @@ impl Plugin for ParentsPlugin {
         app
             .insert_resource(ParentSpawnTimer(
                 Timer::from_seconds(
-                    rand::thread_rng().gen_range(MIN_PARENT_SPAWN_TIME..=MAX_PARENT_SPAWN_TIME),
+                    START_PARENT_SPAWN_TIME,
                     TimerMode::Repeating,
                 )
             ))
@@ -112,7 +100,7 @@ impl Default for Parent {
     fn default() -> Self {
         Self { 
             queue_index: 0,
-            patience_timer: Timer::from_seconds(PARENT_MAX_PATIENCE, TimerMode::Once),
+            patience_timer: Timer::from_seconds(START_PATIENCE, TimerMode::Once),
             state: ParentState::Walking,
             species: Species::Derp,
             is_changed: false
@@ -141,6 +129,7 @@ fn handle_random_parent_spawning(
     mut parent_queue: ResMut<ParentQueue>,
     mut bar_materials: ResMut<Assets<ProgressBarMaterial>>,
     animation_assets: Res<AnimationAssets>,
+    difficulty: Res<Difficulty>,
     camera: Query<(&Camera, &GlobalTransform), With<Camera2d>>,
 ) {
     let available_slots_indices = parent_queue.0.iter().enumerate().filter_map(|(i, &slot)| if !slot { Some(i) } else { None }).collect::<Vec<_>>();
@@ -155,9 +144,7 @@ fn handle_random_parent_spawning(
 
     timer.0.tick(time.delta());
     if timer.0.just_finished() || parent_queue.0.iter().all(|&slot| !slot) {
-        timer.0.set_duration(Duration::from_secs_f32(
-            rand::thread_rng().gen_range(MIN_PARENT_SPAWN_TIME..=MAX_PARENT_SPAWN_TIME)
-        ));
+        timer.0.set_duration(Duration::from_secs_f32(difficulty.parent_spawn_time));
         timer.0.reset();
 
         let (camera, camera_transform) = camera.single();
@@ -229,12 +216,13 @@ fn handle_random_parent_spawning(
             _ => Species::Derp
         };
 
-        spawn_parent(&mut commands, &animation_assets, species, spawn_pos, picked_slot, patience_bar);
+        spawn_parent(&mut commands, difficulty, &animation_assets, species, spawn_pos, picked_slot, patience_bar);
     }
 }
 
 fn spawn_parent(
     commands: &mut Commands,
+    difficulty: Res<Difficulty>,
     animation_assets: &AnimationAssets,
     species: Species,
     spawn_pos: Vec3,
@@ -245,6 +233,7 @@ fn spawn_parent(
         Parent {
             queue_index: slot,
             species,
+            patience_timer: Timer::from_seconds(difficulty.parent_patience, TimerMode::Once),
             ..default()
         },
         SpatialBundle {
@@ -431,10 +420,13 @@ fn move_walkers(
                 Needs::default(),
                 DropBlocker,
                 crate::GameObject,
-                Pulsing,
+                Pulsing {
+                    min: 0.9,
+                    max: 1.3,
+                    speed: 1.1,
+                    ..default()
+                },
             )).id();
-
-
             
             let mut anim = AnimationBundle::new_with_size(vec![ textures.nothing.clone() ], 0.1, CHILD_HITBOX_SIZE, 0.6);
             anim.sprite_sheet.transform = Transform::from_translation(Vec3::new(0.0, 0.0, 5.0)).with_scale(Vec3::new(1.5, 1.5, 1.0));
@@ -510,7 +502,7 @@ fn read_on_drop_events(
             let (parent, maybe_bar) = parent_query.get(children.parent_entity).unwrap();
 
             let remains = parent.patience_timer.remaining().as_secs_f32();
-            let max_score_mult = remains / PARENT_MAX_PATIENCE;
+            let max_score_mult = remains / parent.patience_timer.duration().as_secs_f32();
 
             parent_queue.0[parent.queue_index] = false;
             commands.entity(children.parent_entity).despawn_recursive();

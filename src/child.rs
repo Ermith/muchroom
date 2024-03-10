@@ -1,7 +1,6 @@
 use bevy::prelude::*;
 use crate::parents::Species;
 
-pub const SPORES_SIZE_MODIFIER: f32 = 0.5;
 /// Size of spawned children.
 pub const CHILD_SIZE: f32 = 130.0;
 /// Size of hitbox of spawned children.
