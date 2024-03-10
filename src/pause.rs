@@ -1,5 +1,7 @@
 use bevy::prelude::*;
 
+use crate::menu::click_music_button;
+
 #[derive(States, Default, Clone, Eq, PartialEq, Debug, Hash)]
 pub enum PausedState {
     #[default]
@@ -17,7 +19,7 @@ impl Plugin for PausedPlugin {
             .add_systems(OnExit(crate::GameState::Playing), pause_system_init)
             .add_systems(Update, pause_toggle_system.run_if(in_state(crate::GameState::Playing)))
             .add_systems(OnEnter(PausedState::Paused), build_pause_menu)
-            .add_systems(Update, pause_menu_system.run_if(in_state(crate::GameState::Playing).and_then(in_state(PausedState::Paused))))
+            .add_systems(Update, (pause_menu_system, click_music_button).run_if(in_state(crate::GameState::Playing).and_then(in_state(PausedState::Paused))))
             .add_systems(OnExit(PausedState::Paused), remove_pause_menu)
             ;
     }
@@ -57,6 +59,7 @@ pub enum ButtonAction {
 
 fn build_pause_menu(
     mut commands: Commands,
+    textures: Res<crate::loading::TextureAssets>,
 ) {
     // darkness overlay to make the game look darker
     commands.spawn((
@@ -229,6 +232,52 @@ fn build_pause_menu(
                     ..Default::default()
                 },
                 ..Default::default()
+            });
+        });
+    });
+
+    commands.spawn((
+        NodeBundle {
+            style: Style {
+                flex_direction: FlexDirection::Row,
+                align_items: AlignItems::End,
+                justify_content: JustifyContent::FlexEnd,
+                top: Val::Px(25.),
+                right: Val::Px(25.),
+                width: Val::Percent(100.),
+                position_type: PositionType::Absolute,
+                ..default()
+            },
+            ..default()
+        },
+        PauseMenu,
+    ))
+    .with_children(|children| {
+        // mute button
+        children.spawn((
+            ButtonBundle {
+                style: Style {
+                    width: Val::Px(50.0),
+                    height: Val::Px(50.0),
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
+            crate::menu::ButtonColors {
+                normal: Color::rgba(0.0, 0.0, 0.0, 0.0),
+                hovered: Color::rgba(0.0, 0.0, 0.0, 0.0),
+            },
+            crate::menu::MusicAction::Toggle,
+        )).with_children(|parent| {
+            parent.spawn(ImageBundle {
+                image: textures.music_icon.clone().into(),
+                style: Style {
+                    width: Val::Px(64.),
+                    ..default()
+                },
+                ..default()
             });
         });
     });
