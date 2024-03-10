@@ -9,5 +9,5 @@ pub const CHILD_HITBOX_SIZE: f32 = 100.0;
 #[derive(Component)]
 pub struct Child {
     pub parent_entity: Entity,
-    pub species: Species
+    pub species: Species,
 }
