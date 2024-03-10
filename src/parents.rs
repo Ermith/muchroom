@@ -4,7 +4,7 @@ use rand::prelude::*;
 use bevy::prelude::*;
 use bevy_progressbar::{ProgressBar, ProgressBarBundle, ProgressBarMaterial};
 
-use crate::{animations::AnimationBundle, child::Child, growing::Growable, hitbox::*, needs::*, loading::*, GameState};
+use crate::{animations::AnimationBundle, child::Child, growing::Growable, highlight::Highlightable, hitbox::*, loading::*, needs::*, pulsing::Pulsing, GameState};
 
 pub const MAX_PARENTS: usize = 13;
 pub const MIN_PARENT_SPAWN_TIME: f32 = 10.0;
@@ -251,6 +251,7 @@ fn spawn_parent(
         InLayers::new_single(Layer::Parent),
         HasPatienceBar(patience_bar),
         crate::GameObject,
+        Highlightable::default(),
     )).id();
 
     spawn_animations(parent, commands, animation_assets, species, ParentState::Walking);
@@ -428,6 +429,7 @@ fn move_walkers(
                 Needs::default(),
                 DropBlocker,
                 crate::GameObject,
+                Pulsing,
             ));
 
             parent.state = ParentState::Patient;

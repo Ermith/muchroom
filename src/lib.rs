@@ -21,6 +21,7 @@ mod cheats;
 mod score;
 mod pause;
 mod child_walking;
+mod pulsing;
 
 use crate::animations::AnimationsPlugin;
 use crate::actions::ActionsPlugin;
@@ -42,6 +43,7 @@ use crate::score::ScorePlugin;
 pub use crate::pause::PausedState;
 use crate::pause::PausedPlugin;
 use crate::child_walking::ChildWalkingPlugin;
+use crate::pulsing::PulsingPlugin;
 
 pub const WINDOW_WIDTH: f32 = 1920.0;
 pub const WINDOW_HEIGHT: f32 = 1080.0;
@@ -101,7 +103,8 @@ impl Plugin for GamePlugin {
             .add_plugins(( // gotta split it in two because of how traits can't be generic over arbitrarily long tuples currently so there's a limit
             ScorePlugin,
             PausedPlugin,
-            ChildWalkingPlugin
+            ChildWalkingPlugin,
+            PulsingPlugin,
         )); 
 
         #[cfg(debug_assertions)]
