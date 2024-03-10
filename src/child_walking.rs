@@ -36,7 +36,6 @@ fn child_walking_system(
     time: Res<Time>,
     mut query: Query<(Option<&mut ChildWalking>, &mut Transform, &Hitbox, &InLayers)>,
 ) {
-    println!("child_walking_system 1");
     for (walking, _, _, _) in &mut query.iter_mut() {
         let Some(mut walking) = walking else { continue };
 
@@ -48,7 +47,6 @@ fn child_walking_system(
             walking.velocity = walking.velocity.normalize() * walking.max_speed;
         }
     }
-    println!("child_walking_system 2");
     let mut combinations = query.iter_combinations_mut::<2>();
     while let Some([mut one, mut two]) = combinations.fetch_next() {
         let mut one = &mut one;
@@ -85,15 +83,11 @@ fn child_walking_system(
         }
     }
 
-    println!("child_walking_system 3");
     for (walking, mut transform, _, _) in &mut query {
         if let Some(walking) = walking {
             if walking.can_move_next_step {
                 transform.translation += walking.velocity.extend(0.0);
-                println!("child_walking_system moving {:?}", walking.velocity);
             }
         }
     }
-    println!("child_walking_system 4");
-    println!("");
 }
