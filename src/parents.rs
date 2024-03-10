@@ -410,16 +410,11 @@ fn move_walkers(
 
             let mut spore_transform = *transform;
             spore_transform.translation += Vec3::new(0.0, 0.0, 1.5);
-            commands.spawn((
-                SpriteSheetBundle {
-                    texture: spores_texture,
-                    transform: spore_transform,
-                    sprite: Sprite {
-                        custom_size: Some(Vec2::splat(CHILD_SIZE)),
-                        ..default()
-                    },
-                    ..default()
-                },
+            let mut anim =AnimationBundle::new_with_size(vec![ spores_texture.clone() ], 0.15, CHILD_HITBOX_SIZE, 0.15);
+            anim.sprite_sheet.transform = spore_transform;
+
+            let child_entity = commands.spawn((
+                anim,
                 Hitbox::new_centered(Vec2::splat(CHILD_HITBOX_SIZE)),
                 EmitsCollisions::default(),
                 Draggable {
@@ -435,7 +430,18 @@ fn move_walkers(
                 DropBlocker,
                 crate::GameObject,
                 Pulsing,
-            ));
+            )).id();
+
+
+            
+            let mut anim = AnimationBundle::new_with_size(vec![ textures.nothing.clone() ], 0.1, CHILD_HITBOX_SIZE, 1.2);
+            anim.sprite_sheet.transform = Transform::from_translation(Vec3::new(0.0, 50.0, 1.0));
+            let eyes_visual = commands.spawn((
+                EyesVisual,
+                anim
+            )).id();
+
+            commands.entity(child_entity).add_child(eyes_visual);
 
             parent.state = ParentState::Patient;
             parent.is_changed = true;

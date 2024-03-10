@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, window::WindowTheme};
 
 pub struct AnimationsPlugin;
 
@@ -30,9 +30,10 @@ impl Animation {
     }
 
     #[allow(dead_code)]
-    pub fn change_frames(mut self, frames: Vec<Handle<Image>>) {
+    pub fn change_frames(&mut self, frames: Vec<Handle<Image>>) {
         self.frames = frames;
         self.timer = 0.0;
+        self.is_changed = true;
     }
 }
 
@@ -41,6 +42,8 @@ pub fn update_animations(
     time: Res<Time>
 ) {
     for (mut animation, mut sprite) in animation_query.iter_mut() {
+        if animation.frames.len() == 0 { continue; }
+
         animation.timer += time.delta_seconds();
 
         if animation.timer > animation.frame_period || animation.is_changed {
@@ -48,14 +51,16 @@ pub fn update_animations(
 
             animation.frame_index = (animation.frame_index + 1) % animation.frames.len();
             *sprite = animation.frames[animation.frame_index].clone();
+
+            animation.is_changed = false;
         }
     }
 }
 
 #[derive(Bundle)]
 pub struct AnimationBundle {
-    animation: Animation,
-    sprite_sheet: SpriteSheetBundle
+    pub animation: Animation,
+    pub sprite_sheet: SpriteSheetBundle
 }
 
 impl AnimationBundle {
@@ -68,6 +73,24 @@ impl AnimationBundle {
             sprite_sheet: SpriteSheetBundle {
                 transform: t,
                 texture: first,
+                ..default()
+            }
+        }
+    }
+
+    pub fn new_with_size(frames: Vec<Handle<Image>>, frame_period: f32, size: f32, z: f32) -> Self {
+        let t = Transform::from_translation(Vec3::new(0.0, 0.0, z));
+        let first = frames[0].clone();
+
+        Self {
+            animation: Animation::new(frames, frame_period),
+            sprite_sheet: SpriteSheetBundle {
+                transform: t,
+                texture: first,
+                sprite: Sprite {
+                    custom_size: Some(Vec2::splat(size)),
+                    ..default()
+                },
                 ..default()
             }
         }

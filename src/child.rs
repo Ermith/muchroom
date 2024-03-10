@@ -11,3 +11,9 @@ pub struct Child {
     pub parent_entity: Entity,
     pub species: Species,
 }
+
+#[derive(Component)]
+pub struct EyesVisual;
+
+#[derive(Component)]
+pub struct BodyVisual;

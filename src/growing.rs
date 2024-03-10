@@ -1,6 +1,6 @@
 use bevy::{prelude::*, sprite::Anchor};
 
-use crate::{animations::AnimationBundle, child::{Child, CHILD_SIZE}, hitbox::{Draggable, DropEvent, Hitbox}, loading::{AnimationAssets, TextureAssets}, pulsing::Pulsing, GameState};
+use crate::{animations::{Animation, AnimationBundle}, child::{BodyVisual, Child, EyesVisual, CHILD_SIZE}, hitbox::{Draggable, DropEvent, Hitbox}, loading::{AnimationAssets, TextureAssets}, pulsing::Pulsing, GameState};
 use crate::parents::Species;
 
 pub const GROW_SPEED: f32 = 1.0;
@@ -70,6 +70,7 @@ impl Plugin for GrowingPlugin {
                 read_on_drop_events,
                 read_hypno_despawn_events,
                 update_hypnotism,
+                update_child_visual,
             ).run_if(in_state(GameState::Playing).and_then(in_state(crate::PausedState::Unpaused)))
         );
     }
@@ -79,9 +80,9 @@ fn progress_grow(
     mut commands: Commands,
     animation_assets: Res<AnimationAssets>,
     time: Res<Time>,
-    mut query: Query<(Entity, &mut Growable, &mut Handle<Image>, &mut Draggable, &Child, &mut Sprite, &mut Hitbox)>,
+    mut query: Query<(Entity, &mut Growable, &mut Draggable, &Child, &mut Sprite, &mut Hitbox)>,
 ) {
-    for (entity, mut growable, mut image, mut draggable, child, mut sprite, mut hitbox) in &mut query {
+    for (entity, mut growable, mut draggable, child, mut sprite, mut hitbox) in &mut query {
         if growable.stopped_by_psycho || growable.stopped_by_needs || growable.stage == GROW_STAGES - 1 {
             continue;
         }
@@ -91,7 +92,6 @@ fn progress_grow(
         if growable.progress >= GROW_DURATION {
             growable.progress -= GROW_DURATION;
             growable.stage += 1;
-            *image = growable.textures[growable.stage].0.clone();
 
             if growable.stage == 1 {
                 hitbox.rect.min.y += CHILD_SIZE / 4.0;
@@ -109,6 +109,100 @@ fn progress_grow(
                 }
             }
         }
+    }
+}
+
+fn update_child_visual(
+    mut commands: Commands,
+    texture_assets: Res<TextureAssets>,
+    mut child_query: Query<(Entity, &Child, &Growable, &mut Animation)>,
+    children_query: Query<&Children>,
+    mut animation_query: Query<&mut Animation, (With<EyesVisual>, Without<Child>)>
+) {
+    for (entity, mushroom_child, growable, mut animation) in child_query.iter_mut() {
+        animation.change_frames(get_child_frames(
+            &texture_assets,
+            mushroom_child.species,
+            growable.stage,
+            false
+        ));
+
+        // should be only 1
+        let children = children_query.get(entity).unwrap();
+        for child in children.iter() {
+            if let Ok(mut anim) = animation_query.get_mut(*child) {
+                anim.change_frames(get_child_frames(
+                    &texture_assets,
+                    mushroom_child.species,
+                    growable.stage,
+                    true
+                ));
+            }
+
+        }
+    }
+}
+
+
+fn get_child_frames(texture_assets: &TextureAssets, species: Species, growth: usize, eyes: bool) -> Vec<Handle<Image>> {
+    match species {
+        Species::Derp => get_child_frames_derp(texture_assets, growth, eyes),
+        Species::Psycho => get_child_frames_psycho(texture_assets, growth, eyes),
+        Species::Poser => get_child_frames_poser(texture_assets, growth, eyes),
+    }
+}
+
+fn get_child_frames_derp(texture_assets: &TextureAssets, growth: usize, eyes: bool) -> Vec<Handle<Image>> {
+    match growth {
+        0 => if eyes { vec![ texture_assets.nothing.clone()] }
+                else { vec![ texture_assets.derp_spores.clone()] },
+        1 => if eyes { vec![ texture_assets.derp_baby_eyes.clone()] }
+                else { vec![ texture_assets.derp_baby_body.clone()] },
+        2 => if eyes { vec![ texture_assets.derp_child_eyes.clone()] }
+                else { vec![ texture_assets.derp_child_body.clone()] },
+        3 => if eyes { vec![ texture_assets.derp_teenager_eyes.clone()] }
+                else { vec![ texture_assets.derp_teenager_body.clone()] },
+        4 => if eyes { vec![ texture_assets.derp_parent_eyes.clone()] }
+                else { vec![ texture_assets.derp_parent_body.clone()] },
+
+        _ => if eyes { vec![ texture_assets.derp_baby_eyes.clone()] }
+                else { vec![ texture_assets.derp_baby_body.clone()] },
+    }
+}
+
+fn get_child_frames_psycho(texture_assets: &TextureAssets, growth: usize, eyes: bool) -> Vec<Handle<Image>> {
+    match growth {
+        0 => if eyes { vec![ texture_assets.nothing.clone()] }
+                else { vec![ texture_assets.psycho_spores.clone()] },
+        1 => if eyes { vec![ texture_assets.psycho_baby_eyes.clone()] }
+                else { vec![ texture_assets.psycho_baby_body.clone()] },
+        2 => if eyes { vec![ texture_assets.psycho_child_eyes.clone()] }
+                else { vec![ texture_assets.psycho_child_body.clone()] },
+        3 => if eyes { vec![ texture_assets.psycho_teenager_eyes.clone()] }
+                else { vec![ texture_assets.psycho_teenager_body.clone()] },
+        4 => if eyes { vec![ texture_assets.psycho_parent_eyes.clone()] }
+                else { vec![ texture_assets.psycho_parent_body.clone()] },
+
+        _ => if eyes { vec![ texture_assets.psycho_baby_eyes.clone()] }
+                else { vec![ texture_assets.psycho_baby_body.clone()] },
+    }
+}
+
+fn get_child_frames_poser(texture_assets: &TextureAssets, growth: usize, eyes: bool) -> Vec<Handle<Image>> {
+    match growth {
+        0 => if eyes { vec![ texture_assets.nothing.clone()] }
+                else { vec![ texture_assets.poser_spores.clone()] },
+        1 => if eyes { vec![ texture_assets.poser_baby_eyes.clone()] }
+                else { vec![ texture_assets.poser_baby_body.clone()] },
+        2 => if eyes { vec![ texture_assets.poser_child_eyes.clone()] }
+                else { vec![ texture_assets.poser_child_body.clone()] },
+        3 => if eyes { vec![ texture_assets.poser_teenager_eyes.clone()] }
+                else { vec![ texture_assets.poser_teenager_body.clone()] },
+        4 => if eyes { vec![ texture_assets.poser_parent_eyes.clone()] }
+                else { vec![ texture_assets.poser_parent_body.clone()] },
+
+        _ => if eyes { vec![ texture_assets.poser_baby_eyes.clone()] }
+                else { vec![ texture_assets.poser_baby_body.clone()] },
     }
 }
 
