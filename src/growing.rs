@@ -1,6 +1,6 @@
 use bevy::{prelude::*, sprite::Anchor};
 
-use crate::{animations::{Animation, AnimationBundle}, child::{BodyVisual, Child, EyesVisual, CHILD_SIZE}, hitbox::{Draggable, DropEvent, Hitbox}, loading::{AnimationAssets, TextureAssets}, pulsing::Pulsing, GameState};
+use crate::{animations::{Animation, AnimationBundle}, child::{BodyVisual, Child, EyesVisual, CHILD_SIZE}, child_walking::ChildWalking, hitbox::{Draggable, DropEvent, Hitbox}, loading::{AnimationAssets, TextureAssets}, pulsing::Pulsing, GameState};
 use crate::parents::Species;
 
 pub const GROW_SPEED: f32 = 1.0;
@@ -107,6 +107,10 @@ fn progress_grow(
                 
                 if child.species == Species::Psycho {
                     add_hypnotic_behaviour(&mut commands, entity, &animation_assets);
+                }
+
+                if child.species == Species::Poser {
+                    commands.entity(entity).insert(ChildWalking::default());
                 }
             }
         }
