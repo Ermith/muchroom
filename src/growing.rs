@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{child::Child, hitbox::{Draggable, DropEvent}, loading::TextureAssets, GameState};
+use crate::{child::Child, hitbox::{Draggable, DropEvent}, loading::TextureAssets, pulsing::Pulsing, GameState};
 use crate::parents::Species;
 
 pub const GROW_SPEED: f32 = 1.0;
@@ -108,7 +108,9 @@ fn read_on_drop_events(
                 Species::Poser => Growable::poser(&texture_assets)
             };
 
-            commands.entity(event.dropped_entity).insert(textures);
+            commands.entity(event.dropped_entity)
+                .insert(textures)
+                .remove::<Pulsing>();
         }
     }
 }
