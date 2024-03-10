@@ -66,6 +66,11 @@ pub fn initiate_drag(
     for (entity, transform, hitbox, mut draggable, image, sprite) in query.iter_mut() {
         if !found_overlap && hitbox.world_rect(transform).contains(mouse_pos) {
             if mouse_buttons.just_pressed(MouseButton::Left) {
+                if let Some(hover_shadow_entity) = draggable.hover_shadow {
+                    commands.entity(hover_shadow_entity).despawn();
+                    draggable.hover_shadow = None;
+                }
+
                 let offset = Vec2::ZERO; //transform.translation.truncate() - mouse_pos;
                 let drag_shadow_entity = commands.spawn((
                     DragShadow {
