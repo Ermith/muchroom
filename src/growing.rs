@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{child::Child, hitbox::{Draggable, DropEvent}, loading::TextureAssets, pulsing::Pulsing, GameState};
+use crate::{child::{Child, CHILD_SIZE}, hitbox::{Draggable, DropEvent, Hitbox}, loading::TextureAssets, pulsing::Pulsing, GameState};
 use crate::parents::Species;
 
 pub const GROW_SPEED: f32 = 1.0;
@@ -73,9 +73,9 @@ impl Plugin for GrowingPlugin {
 
 fn progress_grow(
     time: Res<Time>,
-    mut query: Query<(&mut Growable, &mut Handle<Image>, &mut Draggable, &Child)>
+    mut query: Query<(&mut Growable, &mut Handle<Image>, &mut Draggable, &Child, &mut Transform, &mut Hitbox)>
 ) {
-    for (mut growable, mut image, mut draggable, child) in &mut query {
+    for (mut growable, mut image, mut draggable, child, mut transform, mut hitbox) in &mut query {
         if growable.stopped || growable.stage == GROW_STAGES - 1 {
             continue;
         }
@@ -86,6 +86,12 @@ fn progress_grow(
             growable.progress -= GROW_DURATION;
             growable.stage += 1;
             *image = growable.textures[growable.stage].0.clone();
+
+            if growable.stage == 1 {
+                transform.translation.y += CHILD_SIZE / 2.0;
+                hitbox.rect.min.y -= CHILD_SIZE / 4.0;
+                hitbox.rect.max.y -= CHILD_SIZE / 4.0;
+            }
 
             if growable.stage == GROW_STAGES - 1 {
                 draggable.special_allowed_entities.push(child.parent_entity);
