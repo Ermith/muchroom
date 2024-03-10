@@ -434,8 +434,8 @@ fn move_walkers(
 
 
             
-            let mut anim = AnimationBundle::new_with_size(vec![ textures.nothing.clone() ], 0.1, CHILD_HITBOX_SIZE, 1.2);
-            anim.sprite_sheet.transform = Transform::from_translation(Vec3::new(0.0, 50.0, 1.0));
+            let mut anim = AnimationBundle::new_with_size(vec![ textures.nothing.clone() ], 0.1, CHILD_HITBOX_SIZE, 0.6);
+            anim.sprite_sheet.transform = Transform::from_translation(Vec3::new(0.0, 50.0, 0.1));
             let eyes_visual = commands.spawn((
                 EyesVisual,
                 anim
