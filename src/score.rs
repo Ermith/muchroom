@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 #[derive(Resource, Clone, Debug, Default)]
-pub struct Score(pub i32);
+pub struct Score(pub i32, pub i32);
 
 pub struct ScorePlugin;
 
@@ -17,6 +17,7 @@ impl Plugin for ScorePlugin {
 
 fn setup_score(mut score: ResMut<Score>) {
     score.0 = 0;
+    score.1 = 0;
 }
 
 #[derive(Component, Debug)]

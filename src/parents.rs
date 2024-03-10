@@ -27,6 +27,8 @@ pub const PARENT_WALK_SPEED: f32 = 100.0;
 pub const PARENT_GAP: f32 = 10.0;
 /// Time after which will parent run out of patience, which results in game over.
 pub const PARENT_MAX_PATIENCE: f32 = 120.0;
+/// Score received at max patiance.
+pub const PARENT_MAX_PATIENCE_SCORE: f32 = 10.0;
 /// Y position of parent spawn.
 pub const PARENT_SPAWN_Y: f32 = 400.0;
 /// X position of the start of the parent queue.
@@ -498,8 +500,10 @@ fn read_on_drop_events(
             if children.parent_entity.index() != event.dropped_on_entity.index() {
                 continue;
             }
-
             let (parent, maybe_bar) = parent_query.get(children.parent_entity).unwrap();
+
+            let remains = parent.patience_timer.remaining().as_secs_f32();
+            let max_score_mult = remains / PARENT_MAX_PATIENCE;
 
             parent_queue.0[parent.queue_index] = false;
             commands.entity(children.parent_entity).despawn_recursive();
@@ -511,7 +515,8 @@ fn read_on_drop_events(
                 commands.entity(bar.0).despawn_recursive();
             }
 
-            score.0 += 1;
+            score.0 += (PARENT_MAX_PATIENCE_SCORE * max_score_mult) as i32;
+            score.1 += 1;
         }
     }
 }
