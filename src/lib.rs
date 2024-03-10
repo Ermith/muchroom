@@ -22,6 +22,7 @@ mod score;
 mod pause;
 mod child_walking;
 mod pulsing;
+mod music;
 
 use crate::animations::AnimationsPlugin;
 use crate::actions::ActionsPlugin;
@@ -44,6 +45,7 @@ pub use crate::pause::PausedState;
 use crate::pause::PausedPlugin;
 use crate::child_walking::ChildWalkingPlugin;
 use crate::pulsing::PulsingPlugin;
+use crate::music::MusicPlugin;
 
 pub const WINDOW_WIDTH: f32 = 1920.0;
 pub const WINDOW_HEIGHT: f32 = 1080.0;
@@ -105,6 +107,7 @@ impl Plugin for GamePlugin {
             PausedPlugin,
             ChildWalkingPlugin,
             PulsingPlugin,
+            MusicPlugin,
         )); 
 
         #[cfg(debug_assertions)]

@@ -24,7 +24,6 @@ impl Plugin for InternalAudioPlugin {
 struct FlyingAudio(Handle<AudioInstance>);
 
 fn start_audio(mut commands: Commands, audio_assets: Res<AudioAssets>, audio: Res<Audio>) {
-    audio.pause();
     let handle = audio
         .play(audio_assets.flying.clone())
         .looped()
