@@ -24,6 +24,7 @@ mod child_walking;
 mod pulsing;
 mod music;
 mod difficulty;
+mod timer;
 
 use crate::animations::AnimationsPlugin;
 use crate::actions::ActionsPlugin;
@@ -48,6 +49,7 @@ use crate::child_walking::ChildWalkingPlugin;
 use crate::pulsing::PulsingPlugin;
 use crate::music::MusicPlugin;
 use crate::difficulty::DifficultyPlugin;
+use  crate::timer::TimerPlugin;
 
 pub const WINDOW_WIDTH: f32 = 1920.0;
 pub const WINDOW_HEIGHT: f32 = 1080.0;
@@ -110,7 +112,8 @@ impl Plugin for GamePlugin {
             ChildWalkingPlugin,
             PulsingPlugin,
             MusicPlugin,
-            DifficultyPlugin
+            DifficultyPlugin,
+            TimerPlugin,
         )); 
 
         #[cfg(debug_assertions)]
