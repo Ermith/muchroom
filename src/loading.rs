@@ -59,6 +59,8 @@ pub struct TextureAssets {
     #[asset(path = "textures/garden/bubble_water.png")]
     pub bubble_water: Handle<Image>,
 
+    #[asset(path = "textures/mushroom_default_baby_icon.png")]
+    pub mushroom_default_baby_icon: Handle<Image>,
     #[asset(path = "textures/bevy.png")]
     pub bevy: Handle<Image>,
     #[asset(path = "textures/github.png")]
