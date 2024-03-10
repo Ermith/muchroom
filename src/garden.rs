@@ -29,7 +29,6 @@ fn setup_garden_background(
             crate::hitbox::InLayers::new_single(crate::hitbox::Layer::Garden),
             crate::GameObject,
             Highlightable {
-                enabled: false,
                 offset: Vec2::new(-150.0, -115.0),
                 ..default()
             }
