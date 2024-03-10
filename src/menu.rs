@@ -66,7 +66,7 @@ fn setup_menu(
             children.spawn(( 
                 TextBundle::from_section(
                     match game_state {
-                        GameState::Menu => "THERE IS NOT MUCH ROOM IN THIS DAYCARE",
+                        GameState::Menu => "THERE IS NOT MUSH ROOM IN THIS DAYCARE",
                         GameState::GameOver => "GAME OVER",
                         _ => unreachable!(),
                     },

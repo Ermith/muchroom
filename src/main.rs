@@ -16,7 +16,7 @@ fn main() {
         .insert_resource(AssetMetaCheck::Never)
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Some(Window {
-                title: "THERE IS NOT MUCH ROOM IN THIS DAYCARE".to_string(), // ToDo
+                title: "THERE IS NOT MUSH ROOM IN THIS DAYCARE".to_string(), // ToDo
                 // Bind to canvas included in `index.html`
                 canvas: Some("#bevy".to_owned()),
                 // Tells wasm not to override default event handling, like F5 and Ctrl+R
