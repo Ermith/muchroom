@@ -148,8 +148,8 @@ fn build_pause_menu(
                             " Plant spores by moving them to garden plot.\n" +
                             " As spores grow, they will start asking for food and water.\n" +
                             " Both food and water is in bucket on the right. \n" +
-                            " Some kids are special be beware of their mischief.\n" +
-                            " Once kid is fully grown up deliver it to parent."
+                            " Some kids are special. Beware of their mischief!\n" +
+                            " Once kid is fully grown up deliver back it to the parent."
                         ).to_string(),
                         style: TextStyle {
                             font_size: 16.0,
