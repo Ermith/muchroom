@@ -1,6 +1,6 @@
 use bevy::{prelude::*, sprite::Anchor};
 
-use crate::{animations::{Animation, AnimationBundle}, child::{BodyVisual, Child, EyesVisual, CHILD_SIZE}, child_walking::ChildWalking, hitbox::{Draggable, DropEvent, Hitbox}, loading::{AnimationAssets, TextureAssets}, pulsing::Pulsing, GameState};
+use crate::{animations::{Animation, AnimationBundle}, child::{Child, EyesVisual, CHILD_SIZE}, child_walking::ChildWalking, hitbox::{Draggable, DropEvent, Hitbox}, loading::{AnimationAssets, TextureAssets}, pulsing::Pulsing, GameState};
 use crate::parents::Species;
 
 pub const GROW_SPEED: f32 = 1.0;
@@ -14,7 +14,7 @@ pub struct Growable {
     progress: f32,
     pub stage: usize,
     // TODO: add eyes as second item in pair?
-    textures: [(Handle<Image>, ); GROW_STAGES],
+    _textures: [(Handle<Image>, ); GROW_STAGES],
     /// Determine if growing is currently stopped.
     pub stopped_by_needs: bool,
     pub stopped_by_psycho: bool
@@ -23,7 +23,7 @@ pub struct Growable {
 impl Growable {
     pub fn derp(textures: &TextureAssets) -> Self {
         Self {
-            textures: [
+            _textures: [
                 (textures.derp_spores.clone(), ),
                 (textures.derp_baby_body.clone(), ),
                 (textures.derp_child_body.clone(), ),
@@ -36,7 +36,7 @@ impl Growable {
 
     pub fn psycho(textures: &TextureAssets) -> Self {
         Self {
-            textures: [
+            _textures: [
                 (textures.psycho_spores.clone(), ),
                 (textures.psycho_baby_body.clone(), ),
                 (textures.psycho_child_body.clone(), ),
@@ -49,7 +49,7 @@ impl Growable {
 
     pub fn poser(textures: &TextureAssets) -> Self {
         Self {
-            textures: [
+            _textures: [
                 (textures.poser_spores.clone(), ),
                 (textures.poser_baby_body.clone(), ),
                 (textures.poser_child_body.clone(), ),
