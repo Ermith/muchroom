@@ -108,8 +108,8 @@ pub fn initiate_drag(
                     )).id();
                     draggable.hover_shadow = Some(hover_shadow_entity);
                 } else {
-                    let (_, _, mut transform) = hover_shadows.get_mut(draggable.hover_shadow.unwrap()).unwrap();
-                    transform.translation = transform.translation.truncate().extend(5.0);
+                    let (_, _, mut hover_shadow_transform) = hover_shadows.get_mut(draggable.hover_shadow.unwrap()).unwrap();
+                    hover_shadow_transform.translation = transform.translation.truncate().extend(5.0);
                 }
             }
             found_overlap = true;
