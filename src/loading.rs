@@ -72,6 +72,10 @@ pub struct TextureAssets {
     #[asset(path = "textures/parent_placeholder.png")]
     pub placeholder_parent: Handle<Image>,
 
+    #[asset(path = "textures/music_icon.png")]
+    pub music_icon: Handle<Image>,
+    #[asset(path = "textures/music_icon_off.png")]
+    pub music_icon_off: Handle<Image>,
 
     #[asset(path = "textures/water_leaf_placeholder.png")]
     pub placeholder_water: Handle<Image>,

@@ -16,7 +16,7 @@ impl Plugin for MusicPlugin {
 pub struct MusicPlayer;
 
 #[derive(Resource)]
-struct MusicAudio(Handle<AudioInstance>);
+pub struct MusicAudio(pub Handle<AudioInstance>);
 
 fn spawn_music(
     mut commands: Commands,

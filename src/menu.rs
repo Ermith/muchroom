@@ -1,6 +1,8 @@
 use crate::loading::TextureAssets;
+use crate::music::MusicAudio;
 use crate::GameState;
 use bevy::prelude::*;
+use bevy_kira_audio::AudioInstance;
 
 pub struct MenuPlugin;
 
@@ -11,7 +13,7 @@ impl Plugin for MenuPlugin {
         app
             .add_systems(OnEnter(GameState::Menu), setup_menu)
             .add_systems(OnEnter(GameState::GameOver), setup_menu)
-            .add_systems(Update, click_play_button.run_if(in_state(GameState::Menu).or_else(in_state(GameState::GameOver))))
+            .add_systems(Update, (click_play_button, click_music_button).run_if(in_state(GameState::Menu).or_else(in_state(GameState::GameOver))))
             .add_systems(OnExit(GameState::Menu), cleanup_menu)
             .add_systems(OnExit(GameState::GameOver), cleanup_menu);
     }
@@ -209,6 +211,53 @@ fn setup_menu(
                     });
             }
         });
+
+    commands.spawn((
+        NodeBundle {
+            style: Style {
+                flex_direction: FlexDirection::Row,
+                align_items: AlignItems::End,
+                justify_content: JustifyContent::FlexEnd,
+                top: Val::Px(25.),
+                right: Val::Px(25.),
+                width: Val::Percent(100.),
+                position_type: PositionType::Absolute,
+                ..default()
+            },
+            ..default()
+        },
+        Menu,
+    ))
+    .with_children(|children| {
+        // mute button
+        children.spawn((
+            ButtonBundle {
+                style: Style {
+                    width: Val::Px(50.0),
+                    height: Val::Px(50.0),
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
+            ButtonColors {
+                normal: Color::rgba(0.0, 0.0, 0.0, 0.0),
+                hovered: Color::rgba(0.0, 0.0, 0.0, 0.0),
+            },
+            MusicAction::Toggle,
+        )).with_children(|parent| {
+            parent.spawn(ImageBundle {
+                image: textures.music_icon.clone().into(),
+                style: Style {
+                    width: Val::Px(64.),
+                    ..default()
+                },
+                ..default()
+            });
+        });
+    });
+
     commands
         .spawn((
             NodeBundle {
@@ -344,6 +393,11 @@ struct OpenLink(&'static str);
 #[derive(Component)]
 struct ExitGame;
 
+#[derive(Component)]
+pub enum MusicAction {
+    Toggle,
+}
+
 fn click_play_button(
     mut next_state: ResMut<NextState<GameState>>,
     mut interaction_query: Query<
@@ -385,5 +439,49 @@ fn click_play_button(
 fn cleanup_menu(mut commands: Commands, menu: Query<Entity, With<Menu>>) {
     for entity in menu.iter() {
         commands.entity(entity).despawn_recursive();
+    }
+}
+
+pub fn click_music_button(
+    mut interaction_query: Query<
+        (
+            &Interaction,
+            &mut BackgroundColor,
+            &ButtonColors,
+            &MusicAction,
+            &Children,
+        ),
+        (Changed<Interaction>, With<Button>),
+    >,
+    textures: Res<TextureAssets>,
+    music: ResMut<MusicAudio>,
+    mut audio_instances: ResMut<Assets<AudioInstance>>,
+    mut ui_images: Query<&mut UiImage>,
+) {
+    for (interaction, mut color, button_colors, action, children) in &mut interaction_query {
+        match *interaction {
+            Interaction::Pressed => {
+                match action {
+                    MusicAction::Toggle => {
+                        let mut ui_image = ui_images.get_mut(children[0]).unwrap();
+                        if let Some(music_instance) = audio_instances.get_mut(&music.0) {
+                            if let bevy_kira_audio::PlaybackState::Playing{..} = music_instance.state() {
+                                ui_image.texture = textures.music_icon_off.clone().into();
+                                music_instance.pause(bevy_kira_audio::AudioTween::default());
+                            } else {
+                                ui_image.texture = textures.music_icon.clone().into();
+                                music_instance.resume(bevy_kira_audio::AudioTween::default());
+                            }
+                        }
+                    }
+                }
+            }
+            Interaction::Hovered => {
+                *color = button_colors.hovered.into();
+            }
+            Interaction::None => {
+                *color = button_colors.normal.into();
+            }
+        }
     }
 }
