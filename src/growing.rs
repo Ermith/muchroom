@@ -1,7 +1,14 @@
 use bevy::{prelude::*, sprite::Anchor};
 
-use crate::{animations::AnimationBundle, child::{Child, CHILD_SIZE}, hitbox::{Draggable, DropEvent, Hitbox}, loading::{AnimationAssets, TextureAssets}, pulsing::Pulsing, GameState};
-use crate::parents::Species;
+use crate::{
+    animations::AnimationBundle,
+    child::{Child, CHILD_SIZE},
+    hitbox::{Draggable, DropEvent, Hitbox},
+    loading::{AnimationAssets, TextureAssets},
+    pulsing::Pulsing,
+    GameState,
+    parents::Species,
+};
 
 pub const GROW_SPEED: f32 = 1.0;
 pub const GROW_DURATION: f32 = 5.0;
