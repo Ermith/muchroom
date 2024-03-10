@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{child::Child, hitbox::{Draggable, DropEvent}, loading::TextureAssets, GameState};
+use crate::{animations::AnimationBundle, child::Child, hitbox::{Draggable, DropEvent}, loading::{AnimationAssets, TextureAssets}, GameState};
 use crate::parents::Species;
 
 pub const GROW_SPEED: f32 = 1.0;
@@ -16,7 +16,8 @@ pub struct Growable {
     // TODO: add eyes as second item in pair?
     textures: [(Handle<Image>, ); GROW_STAGES],
     /// Determine if growing is currently stopped.
-    pub stopped: bool,
+    pub stopped_by_needs: bool,
+    pub stopped_by_psycho: bool
 }
 
 impl Growable {
@@ -63,9 +64,12 @@ impl Growable {
 impl Plugin for GrowingPlugin {
     fn build(&self, app: &mut App) {
         app
+            .add_event::<HypnoDespawnEvent>()
             .add_systems(Update, (
                 progress_grow,
                 read_on_drop_events,
+                read_hypno_despawn_events,
+                update_hypnotism,
             ).run_if(in_state(GameState::Playing).and_then(in_state(crate::PausedState::Unpaused)))
         );
     }
@@ -73,10 +77,12 @@ impl Plugin for GrowingPlugin {
 
 fn progress_grow(
     time: Res<Time>,
-    mut query: Query<(&mut Growable, &mut Handle<Image>, &mut Draggable, &Child)>
+    mut query: Query<(Entity, &mut Growable, &mut Handle<Image>, &mut Draggable, &Child)>,
+    mut commands: Commands,
+    animation_assets: Res<AnimationAssets>,
 ) {
-    for (mut growable, mut image, mut draggable, child) in &mut query {
-        if growable.stopped || growable.stage == GROW_STAGES - 1 {
+    for (entity, mut growable, mut image, mut draggable, child) in &mut query {
+        if growable.stopped_by_psycho || growable.stopped_by_needs || growable.stage == GROW_STAGES - 1 {
             continue;
         }
 
@@ -89,6 +95,11 @@ fn progress_grow(
 
             if growable.stage == GROW_STAGES - 1 {
                 draggable.special_allowed_entities.push(child.parent_entity);
+
+                
+                if child.species == Species::Psycho {
+                    add_hypnotic_behaviour(&mut commands, entity, &animation_assets);
+                }
             }
         }
     }
@@ -111,4 +122,56 @@ fn read_on_drop_events(
             commands.entity(event.dropped_entity).insert(textures);
         }
     }
+}
+
+#[derive(Component)]
+pub struct HypnoBehaviour {
+    pub range: f32,
+}
+
+#[derive(Event, Debug)]
+pub struct HypnoDespawnEvent {
+    pub parent: Entity,
+}
+
+fn update_hypnotism(
+    mut victim_query: Query<(&mut Growable, &Transform)>,
+    hypno_query: Query<(&GlobalTransform, &HypnoBehaviour)>
+) {
+    for (mut victim_growable, _) in victim_query.iter_mut() {
+        victim_growable.stopped_by_psycho = false;
+    }
+
+    for (transform, hypno_behaviour) in hypno_query.iter() {
+        for (mut victim_growable, victim_transform) in victim_query.iter_mut() {
+            if (transform.translation() - victim_transform.translation).length() < hypno_behaviour.range {
+                victim_growable.stopped_by_psycho = true;
+            }
+        }
+    }
+}
+
+fn read_hypno_despawn_events(
+    mut commands: Commands,
+    mut events: EventReader<HypnoDespawnEvent>,
+    query: Query<&Children, With<HypnoBehaviour>>
+) {
+    for event in events.read() {
+        for hypno_child in query.iter_descendants(event.parent) {
+            commands.entity(hypno_child).despawn();
+        }
+    }
+}
+
+fn add_hypnotic_behaviour(
+    commands: &mut Commands,
+    parent: Entity,
+    animation_assets: &AnimationAssets,
+) {
+    let e = commands.spawn((
+        HypnoBehaviour { range: 500.0 },
+        AnimationBundle::new(animation_assets.hypnotic_effect.clone(), 0.15, 0.5, 1.0)
+    )).id();
+
+    commands.entity(parent).add_child(e);
 }
