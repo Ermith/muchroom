@@ -85,10 +85,10 @@ fn setup_menu(
                     },
                     ..default()
                 });
-                let text = if score.0 == 1 {
-                    "You managed to take care of only one fungus!".to_string()
+                let text = if score.1 == 1 {
+                    format!("You managed to take care of only one fungus!\nFinal score: {}", score.0)
                 } else {
-                    format!("You managed to take care of {} fungi!", score.0)
+                    format!("You managed to take care of {} fungi!\nFinal score: {}", score.1, score.0)
                 };
                 children.spawn(( 
                     TextBundle::from_section(
