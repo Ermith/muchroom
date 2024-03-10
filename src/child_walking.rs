@@ -1,15 +1,16 @@
 use bevy::prelude::*;
 use rand::{thread_rng, Rng};
 
-use crate::hitbox::{Hitbox, InLayers};
+use crate::{growing::Growable, hitbox::{Hitbox, InLayers}};
 
-pub const DEFAULT_CHILD_MAX_SPEED: f32 = 250.0;
+pub const DEFAULT_CHILD_MAX_SPEED: f32 = 100.0;
 pub const CHILD_WALKING_CHANGE: f32 = 50.0;
 
 #[derive(Component, Debug)]
 pub struct ChildWalking {
     pub max_speed: f32,
     pub velocity: Vec2,
+    pub last_velocity: Vec2,
     can_move_next_step: bool,
 }
 
@@ -18,6 +19,7 @@ impl Default for ChildWalking {
         ChildWalking {
             max_speed: DEFAULT_CHILD_MAX_SPEED,
             velocity: Vec2::ZERO,
+            last_velocity: Vec2::ZERO,
             can_move_next_step: true,
         }
     }
@@ -40,7 +42,7 @@ fn child_walking_system(
         let Some(mut walking) = walking else { continue };
 
         walking.can_move_next_step = true;
-
+        walking.last_velocity = walking.velocity;
         walking.velocity += time.delta_seconds() * Vec2::from_angle(thread_rng().gen_range(0.0..std::f32::consts::PI * 2.0) as f32) * CHILD_WALKING_CHANGE;
 
         if walking.velocity.length() > walking.max_speed {

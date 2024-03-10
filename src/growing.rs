@@ -128,11 +128,18 @@ fn progress_grow(
 fn update_child_visual(
     texture_assets: Res<TextureAssets>,
     animation_assets: Res<AnimationAssets>,
-    mut child_query: Query<(Entity, &Child, &mut Growable, &mut Animation)>,
+    mut child_query: Query<(Entity, &Child, &mut Growable, &mut Animation, &mut Transform)>,
     children_query: Query<&Children>,
     mut animation_query: Query<&mut Animation, (With<EyesVisual>, Without<Child>)>,
+    mut walking_query: Query<&ChildWalking>
 ) {
-    for (entity, mushroom_child, mut growable, mut animation) in child_query.iter_mut() {
+    for (entity, mushroom_child, mut growable, mut animation, mut transform) in child_query.iter_mut() {
+        if let Ok(walking) = walking_query.get(entity) {
+            if walking.last_velocity.x.signum() != walking.velocity.x.signum() {
+                growable.is_changed = true;
+            }
+        }
+
         if !growable.is_changed { continue; }
 
         let mut body_frames = get_child_frames(
@@ -149,7 +156,15 @@ fn update_child_visual(
             true
         );
 
+
+        *transform = transform.with_scale(Vec3::new(1.0, 1.0, 1.0));
         if mushroom_child.species == Species::Poser && growable.stage == 4 {
+            if let Ok(walking) = walking_query.get(entity) {
+                if walking.velocity.x < 0.0 {
+                    *transform = transform.with_scale(Vec3::new(-1.0, 1.0, 1.0));
+                }
+            }
+
             body_frames = animation_assets.poser_parent_walking_body.clone();
             eyes_frames = animation_assets.poser_parent_walking_eyes.clone();
         }
