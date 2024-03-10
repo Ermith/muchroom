@@ -128,12 +128,12 @@ fn progress_grow(
 fn update_child_visual(
     texture_assets: Res<TextureAssets>,
     animation_assets: Res<AnimationAssets>,
-    mut child_query: Query<(Entity, &Child, &mut Growable, &mut Animation, &mut Transform)>,
+    mut child_query: Query<(Entity, &Child, &mut Growable, &mut Animation, &mut Sprite)>,
     children_query: Query<&Children>,
     mut animation_query: Query<&mut Animation, (With<EyesVisual>, Without<Child>)>,
     mut walking_query: Query<&ChildWalking>
 ) {
-    for (entity, mushroom_child, mut growable, mut animation, mut transform) in child_query.iter_mut() {
+    for (entity, mushroom_child, mut growable, mut animation, mut sprite) in child_query.iter_mut() {
         if let Ok(walking) = walking_query.get(entity) {
             if walking.last_velocity.x.signum() != walking.velocity.x.signum() {
                 growable.is_changed = true;
@@ -157,11 +157,13 @@ fn update_child_visual(
         );
 
 
-        *transform = transform.with_scale(Vec3::new(1.0, 1.0, 1.0));
+        sprite.flip_x = false;
         if mushroom_child.species == Species::Poser && growable.stage == 4 {
             if let Ok(walking) = walking_query.get(entity) {
+                println!("WALKING CHANGE");
+
                 if walking.velocity.x < 0.0 {
-                    *transform = transform.with_scale(Vec3::new(-1.0, 1.0, 1.0));
+                    sprite.flip_x = true;
                 }
             }
 
