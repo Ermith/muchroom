@@ -3,8 +3,8 @@ use bevy::prelude::*;
 use crate::GameState;
 
 const MIN_SCALE: f32 = 0.9;
-const MAX_SCALE: f32 = 1.1;
-const PULSE_SPEED: f32 = 0.6;
+const MAX_SCALE: f32 = 1.4;
+const PULSE_SPEED: f32 = 0.9;
 
 pub struct PulsingPlugin;
 
