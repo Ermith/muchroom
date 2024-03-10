@@ -104,10 +104,10 @@ fn read_on_drop_events(
     mut commands: Commands,
     mut events: EventReader<DropEvent>,
     texture_assets: Res<TextureAssets>,
-    query: Query<&Child, Without<Growable>>
+    mut query: Query<(&Child, &mut Transform), Without<Growable>>
 ) {
     for event in events.read() {
-        if let Ok(child) = query.get(event.dropped_entity) {
+        if let Ok((child, mut transform)) = query.get_mut(event.dropped_entity) {
             let textures = match child.species {
                 Species::Derp => Growable::derp(&texture_assets),
                 Species::Psycho => Growable::psycho(&texture_assets),
@@ -117,6 +117,7 @@ fn read_on_drop_events(
             commands.entity(event.dropped_entity)
                 .insert(textures)
                 .remove::<Pulsing>();
+            transform.scale = Vec3::splat(1.0);
         }
     }
 }
