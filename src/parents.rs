@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use rand::prelude::*;
-use bevy::prelude::*;
+use bevy::{prelude::*, sprite::Anchor};
 use bevy_progressbar::{ProgressBar, ProgressBarBundle, ProgressBarMaterial};
 
 use crate::{
@@ -401,16 +401,11 @@ fn move_walkers(
 
             let mut spore_transform = *transform;
             spore_transform.translation += Vec3::new(0.0, 0.0, 1.5);
-            commands.spawn((
-                SpriteSheetBundle {
-                    texture: spores_texture,
-                    transform: spore_transform,
-                    sprite: Sprite {
-                        custom_size: Some(Vec2::splat(CHILD_SIZE * SPORES_SIZE_MODIFIER)),
-                        ..default()
-                    },
-                    ..default()
-                },
+            let mut anim =AnimationBundle::new_with_size(vec![ spores_texture.clone() ], 0.15, CHILD_HITBOX_SIZE, 0.15);
+            anim.sprite_sheet.transform = spore_transform;
+
+            let child_entity = commands.spawn((
+                anim,
                 Hitbox::new_centered(Vec2::splat(CHILD_HITBOX_SIZE)),
                 EmitsCollisions::default(),
                 Draggable {
@@ -431,7 +426,17 @@ fn move_walkers(
                     speed: 1.1,
                     ..default()
                 },
-            ));
+            )).id();
+            
+            let mut anim = AnimationBundle::new_with_size(vec![ textures.nothing.clone() ], 0.1, CHILD_HITBOX_SIZE, 0.6);
+            anim.sprite_sheet.transform = Transform::from_translation(Vec3::new(0.0, 0.0, 6.0)).with_scale(Vec3::new(1.5, 1.5, 1.0));
+            anim.sprite_sheet.sprite.anchor = Anchor::BottomCenter;
+            let eyes_visual = commands.spawn((
+                EyesVisual,
+                anim
+            )).id();
+
+            commands.entity(child_entity).add_child(eyes_visual);
 
             parent.state = ParentState::Patient;
             parent.is_changed = true;

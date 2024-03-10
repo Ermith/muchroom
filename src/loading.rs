@@ -36,6 +36,10 @@ pub struct AudioAssets {
 
 #[derive(AssetCollection, Resource, Default)]
 pub struct TextureAssets {
+    #[asset(path = "textures/nothing.png")]
+    pub nothing: Handle<Image>,
+    
+
     #[asset(path = "textures/garden/garden.png")]
     pub garden_background: Handle<Image>,
     // worms
@@ -95,6 +99,15 @@ pub struct TextureAssets {
     #[asset(path = "textures/mushrooms/derp/derp_parent_body.png")]
     pub derp_parent_body: Handle<Image>,
 
+    #[asset(path = "textures/mushrooms/derp/derp_baby_eyes.png")]
+    pub derp_baby_eyes: Handle<Image>,
+    #[asset(path = "textures/mushrooms/derp/derp_child_eyes.png")]
+    pub derp_child_eyes: Handle<Image>,
+    #[asset(path = "textures/mushrooms/derp/derp_teenager_eyes.png")]
+    pub derp_teenager_eyes: Handle<Image>,
+    #[asset(path = "textures/mushrooms/derp/derp_parent_eyes.png")]
+    pub derp_parent_eyes: Handle<Image>,
+
     #[asset(path = "textures/mushrooms/psycho/psycho_spores.png")]
     pub psycho_spores: Handle<Image>,
     #[asset(path = "textures/mushrooms/psycho/psycho_baby_body.png")]
@@ -106,6 +119,15 @@ pub struct TextureAssets {
     #[asset(path = "textures/mushrooms/psycho/psycho_parent_body.png")]
     pub psycho_parent_body: Handle<Image>,
 
+    #[asset(path = "textures/mushrooms/psycho/psycho_baby_eyes.png")]
+    pub psycho_baby_eyes: Handle<Image>,
+    #[asset(path = "textures/mushrooms/psycho/psycho_child_eyes.png")]
+    pub psycho_child_eyes: Handle<Image>,
+    #[asset(path = "textures/mushrooms/psycho/psycho_teenager_eyes.png")]
+    pub psycho_teenager_eyes: Handle<Image>,
+    #[asset(path = "textures/mushrooms/psycho/psycho_parent_eyes.png")]
+    pub psycho_parent_eyes: Handle<Image>,
+
     #[asset(path = "textures/mushrooms/poser/poser_spores.png")]
     pub poser_spores: Handle<Image>,
     #[asset(path = "textures/mushrooms/poser/poser_baby_body.png")]
@@ -116,6 +138,15 @@ pub struct TextureAssets {
     pub poser_teenager_body: Handle<Image>,
     #[asset(path = "textures/mushrooms/poser/poser_parent_body.png")]
     pub poser_parent_body: Handle<Image>,
+
+    #[asset(path = "textures/mushrooms/poser/poser_baby_eyes.png")]
+    pub poser_baby_eyes: Handle<Image>,
+    #[asset(path = "textures/mushrooms/poser/poser_child_eyes.png")]
+    pub poser_child_eyes: Handle<Image>,
+    #[asset(path = "textures/mushrooms/poser/poser_teenager_eyes.png")]
+    pub poser_teenager_eyes: Handle<Image>,
+    #[asset(path = "textures/mushrooms/poser/poser_parent_eyes.png")]
+    pub poser_parent_eyes: Handle<Image>,
 
     // Psycho child hypnotic
     #[asset(path = "textures/mushrooms/psycho/hypno_child/psycho_child_hypnotic_body.png")]

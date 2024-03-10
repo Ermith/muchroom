@@ -3,12 +3,12 @@ use bevy::prelude::*;
 use crate::GameState;
 
 /// Time which takes to scale difficulties from start to end values.
-const DIFFICULTY_SCALING_TIME: f32 = 10.0 * 60.0;
+const DIFFICULTY_SCALING_TIME: f32 = 5.0 * 60.0;
 
 pub const START_PATIENCE: f32 = 120.0;
 const END_PATIENCE: f32 = 35.0;
 
-pub const START_PARENT_SPAWN_TIME: f32 = 20.0;
+pub const START_PARENT_SPAWN_TIME: f32 = 15.0;
 const END_PARENT_SPAWN_TIME: f32 = 5.0;
 
 pub struct DifficultyPlugin;
