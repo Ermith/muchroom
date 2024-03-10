@@ -125,6 +125,20 @@ pub struct TextureAssets {
     #[asset(path = "textures/mushrooms/psycho/hypno_child/psycho_child_hypnotic_eyes_6.png")]
     pub psycho_child_hypnotic_eyes_6: Handle<Image>,
 
+    // Hypnotic Effect
+    #[asset(path = "textures/hypnotic_effect/hypnotic_effect_1.png")]
+    pub hypnotic_effect_1: Handle<Image>,
+    #[asset(path = "textures/hypnotic_effect/hypnotic_effect_2.png")]
+    pub hypnotic_effect_2: Handle<Image>,
+    #[asset(path = "textures/hypnotic_effect/hypnotic_effect_3.png")]
+    pub hypnotic_effect_3: Handle<Image>,
+    #[asset(path = "textures/hypnotic_effect/hypnotic_effect_4.png")]
+    pub hypnotic_effect_4: Handle<Image>,
+    #[asset(path = "textures/hypnotic_effect/hypnotic_effect_5.png")]
+    pub hypnotic_effect_5: Handle<Image>,
+    #[asset(path = "textures/hypnotic_effect/hypnotic_effect_6.png")]
+    pub hypnotic_effect_6: Handle<Image>,
+
     // Parent Walking Animations
     //====================================
 
@@ -283,6 +297,9 @@ pub struct AnimationAssets {
     pub psycho_child_hypnotic_body: Vec<Handle<Image>>,
     pub psycho_child_hypnotic_eyes: Vec<Handle<Image>>,
 
+    // Hypnotic Effect
+    pub hypnotic_effect: Vec<Handle<Image>>,
+
     // Parent Walking Animations
     pub derp_parent_walking_body: Vec<Handle<Image>>,
     pub psycho_parent_walking_body: Vec<Handle<Image>>,
@@ -325,6 +342,15 @@ pub fn init_animation_resource(
     animation_assets.psycho_child_hypnotic_body.push(
         texture_assets.psycho_child_hypnotic_body.clone()
     );
+
+    // Hypnotic Effect
+    let vec = &mut animation_assets.hypnotic_effect;
+    vec.push(texture_assets.hypnotic_effect_1.clone());
+    vec.push(texture_assets.hypnotic_effect_2.clone());
+    vec.push(texture_assets.hypnotic_effect_3.clone());
+    vec.push(texture_assets.hypnotic_effect_4.clone());
+    vec.push(texture_assets.hypnotic_effect_5.clone());
+    vec.push(texture_assets.hypnotic_effect_6.clone());
 
     // Parent Walking Animations
     //==================================

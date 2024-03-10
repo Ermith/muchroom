@@ -147,7 +147,7 @@ fn handle_needs_decrease(
         needs.hunger -= time.delta_seconds() * HUNGER_DECREASE_RATE;
         needs.thirst -= time.delta_seconds() * THIRST_DECREASE_RATE;
 
-        growable.stopped = needs.hunger < 0.0 || needs.thirst < 0.0;
+        growable.stopped_by_needs = needs.hunger < 0.0 || needs.thirst < 0.0;
 
         if needs.hunger < 0.0 && needs.hunger_bubble.is_none() {
             needs.hunger_bubble = Some(commands.spawn(
