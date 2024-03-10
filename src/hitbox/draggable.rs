@@ -1,8 +1,10 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, render::view::visibility};
 use enumset::EnumSet;
 
 use crate::hitbox::Hitbox;
 use super::{collisions::EmitsCollisions, InLayers, Layer};
+
+const DRAGGABLE_SCALE: f32 = 1.15;
 
 /// Dropping is blocked by entities with DropBlocker in layers that overlap with the draggable entity
 /// Example:
@@ -50,7 +52,7 @@ pub fn initiate_drag(
     mut commands: Commands,
     mouse_buttons: Res<ButtonInput<MouseButton>>,
     mouse_coords: Res<super::mouse::MouseCoords>,
-    mut query: Query<(Entity, &Transform, &Hitbox, &mut Draggable, &Handle<Image>, &Sprite)>,
+    mut query: Query<(Entity, &Transform, &Hitbox, &mut Draggable, &Handle<Image>, &Sprite, &mut Visibility)>,
     mut hover_shadows: Query<(Entity, &HoverShadow, &mut Transform), Without<Draggable>>,
 ) {
     let mouse_pos: Vec2 = mouse_coords.as_ref().into();
@@ -63,9 +65,14 @@ pub fn initiate_drag(
 
     let mut found_overlap = false;
 
-    for (entity, transform, hitbox, mut draggable, image, sprite) in query.iter_mut() {
+    for (entity, transform, hitbox, mut draggable, image, sprite, mut visibility) in query.iter_mut() {
         if !found_overlap && hitbox.world_rect(transform).contains(mouse_pos) {
             if mouse_buttons.just_pressed(MouseButton::Left) {
+                if let Some(hover_shadow_entity) = draggable.hover_shadow {
+                    commands.entity(hover_shadow_entity).despawn();
+                    draggable.hover_shadow = None;
+                }
+
                 let offset = Vec2::ZERO; //transform.translation.truncate() - mouse_pos;
                 let drag_shadow_entity = commands.spawn((
                     DragShadow {
@@ -75,7 +82,7 @@ pub fn initiate_drag(
                     SpriteBundle {
                         texture: image.clone(),
                         sprite: Sprite {
-                            custom_size: sprite.custom_size.and_then(|size| Some(size * 1.3)),
+                            custom_size: sprite.custom_size.and_then(|size| Some(size * DRAGGABLE_SCALE)),
                             ..sprite.clone()
                         },
                         transform: Transform::from_translation(transform.translation),
@@ -97,8 +104,8 @@ pub fn initiate_drag(
                         SpriteBundle {
                             texture: image.clone(),
                             sprite: Sprite {
-                                custom_size: sprite.custom_size.and_then(|size| Some(size * 1.3)),
-                                color: Color::rgba(1.1, 1.1, 1.1, 0.7),
+                                custom_size: sprite.custom_size.and_then(|size| Some(size * DRAGGABLE_SCALE)),
+                                color: Color::rgba(1.1, 1.1, 1.1, 1.0),
                                 ..sprite.clone()
                             },
                             transform: Transform::from_translation(translation),
@@ -107,9 +114,10 @@ pub fn initiate_drag(
                         crate::GameObject,
                     )).id();
                     draggable.hover_shadow = Some(hover_shadow_entity);
+                    *visibility = Visibility::Hidden;
                 } else {
-                    let (_, _, mut transform) = hover_shadows.get_mut(draggable.hover_shadow.unwrap()).unwrap();
-                    transform.translation = transform.translation.truncate().extend(5.0);
+                    let (_, _, mut hover_shadow_transform) = hover_shadows.get_mut(draggable.hover_shadow.unwrap()).unwrap();
+                    hover_shadow_transform.translation = transform.translation.truncate().extend(5.0);
                 }
             }
             found_overlap = true;
@@ -117,6 +125,7 @@ pub fn initiate_drag(
             if let Some(hover_shadow_entity) = draggable.hover_shadow {
                 commands.entity(hover_shadow_entity).despawn();
                 draggable.hover_shadow = None;
+                *visibility = Visibility::Visible;
             }
         }
     }

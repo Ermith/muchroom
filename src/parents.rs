@@ -4,7 +4,17 @@ use rand::prelude::*;
 use bevy::prelude::*;
 use bevy_progressbar::{ProgressBar, ProgressBarBundle, ProgressBarMaterial};
 
-use crate::{animations::AnimationBundle, child::Child, growing::Growable, hitbox::*, needs::*, loading::*, GameState};
+use crate::{
+    animations::AnimationBundle,
+    child::*,
+    growing::Growable,
+    highlight::Highlightable,
+    hitbox::*,
+    loading::*,
+    needs::*,
+    pulsing::Pulsing,
+    GameState
+};
 
 pub const MAX_PARENTS: usize = 13;
 pub const MIN_PARENT_SPAWN_TIME: f32 = 10.0;
@@ -21,11 +31,6 @@ pub const PARENT_MAX_PATIENCE: f32 = 120.0;
 pub const PARENT_SPAWN_Y: f32 = 400.0;
 /// X position of the start of the parent queue.
 pub const PARENT_QUEUE_X: f32 = -850.0;
-
-/// Size of spawned children.
-pub const CHILD_SIZE: f32 = 128.0;
-/// Size of hitbox of spawned children.
-pub const CHILD_HITBOX_SIZE: f32 = 100.0;
 
 /// How much the bar color wobble tends to return to normalcy
 const FLOATY_NORMALCY_BIAS: f32 = 0.015;
@@ -251,6 +256,7 @@ fn spawn_parent(
         InLayers::new_single(Layer::Parent),
         HasPatienceBar(patience_bar),
         crate::GameObject,
+        Highlightable::default(),
     )).id();
 
     spawn_animations(parent, commands, animation_assets, species, ParentState::Walking);
@@ -428,6 +434,7 @@ fn move_walkers(
                 Needs::default(),
                 DropBlocker,
                 crate::GameObject,
+                Pulsing,
             ));
 
             parent.state = ParentState::Patient;
