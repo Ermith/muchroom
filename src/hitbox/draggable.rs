@@ -4,7 +4,7 @@ use enumset::EnumSet;
 use crate::hitbox::Hitbox;
 use super::{collisions::EmitsCollisions, InLayers, Layer};
 
-const DRAGGABLE_SCALE: f32 = 1.15;
+const DRAGGABLE_SCALE: f32 = 1.4;
 const HOVER_Z: f32 = 5.0;
 
 /// Dropping is blocked by entities with DropBlocker in layers that overlap with the draggable entity
