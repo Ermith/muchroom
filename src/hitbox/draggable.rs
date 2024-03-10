@@ -68,6 +68,11 @@ pub fn initiate_drag(
     for (entity, transform, hitbox, mut draggable, image, sprite, mut visibility) in query.iter_mut() {
         if !found_overlap && hitbox.world_rect(transform).contains(mouse_pos) {
             if mouse_buttons.just_pressed(MouseButton::Left) {
+                if let Some(hover_shadow_entity) = draggable.hover_shadow {
+                    commands.entity(hover_shadow_entity).despawn();
+                    draggable.hover_shadow = None;
+                }
+
                 let offset = Vec2::ZERO; //transform.translation.truncate() - mouse_pos;
                 let drag_shadow_entity = commands.spawn((
                     DragShadow {
@@ -111,8 +116,8 @@ pub fn initiate_drag(
                     draggable.hover_shadow = Some(hover_shadow_entity);
                     *visibility = Visibility::Hidden;
                 } else {
-                    let (_, _, mut transform) = hover_shadows.get_mut(draggable.hover_shadow.unwrap()).unwrap();
-                    transform.translation = transform.translation.truncate().extend(5.0);
+                    let (_, _, mut hover_shadow_transform) = hover_shadows.get_mut(draggable.hover_shadow.unwrap()).unwrap();
+                    hover_shadow_transform.translation = transform.translation.truncate().extend(5.0);
                 }
             }
             found_overlap = true;
