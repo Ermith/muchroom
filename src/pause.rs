@@ -142,7 +142,15 @@ fn build_pause_menu(
             text: Text {
                 sections: vec![
                     TextSection {
-                        value: "TODO: HELP TEXT GOES HERE".to_string(),
+                        value: (
+                            "Guide:\n".to_string() + 
+                            " Parent shrooms deliver spores.\n" +
+                            " Plant spores by moving them to garden plot.\n" +
+                            " As spores grow, they will start asking for food and water.\n" +
+                            " Both food and water is in bucket on the right. \n" +
+                            " Some kids are special be beware of their mischief.\n" +
+                            " Once kid is fully grown up deliver it to parent."
+                        ).to_string(),
                         style: TextStyle {
                             font_size: 16.0,
                             color: Color::WHITE,
