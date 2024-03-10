@@ -108,6 +108,13 @@ fn progress_grow(
                 if child.species == Species::Psycho {
                     add_hypnotic_behaviour(&mut commands, entity, &animation_assets);
                 }
+
+                commands.entity(entity).insert(Pulsing {
+                    min: 0.95,
+                    max: 1.05,
+                    speed: 0.2,
+                    ..default()
+                });
             }
         }
     }

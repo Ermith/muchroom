@@ -434,7 +434,12 @@ fn move_walkers(
                 Needs::default(),
                 DropBlocker,
                 crate::GameObject,
-                Pulsing,
+                Pulsing {
+                    min: 0.9,
+                    max: 1.3,
+                    speed: 1.1,
+                    ..default()
+                },
             ));
 
             parent.state = ParentState::Patient;
