@@ -1,8 +1,7 @@
 use bevy::{prelude::*, sprite::Anchor};
 
-use crate::{
-    animations::{Animation, AnimationBundle}, child::*, hitbox::{Draggable, DropEvent, Hitbox}, loading::{AnimationAssets, TextureAssets}, parents::Species, pulsing::Pulsing, GameState
-};
+use crate::{animations::{Animation, AnimationBundle}, child::{BodyVisual, Child, EyesVisual, CHILD_SIZE}, child_walking::ChildWalking, hitbox::{Draggable, DropEvent, Hitbox}, loading::{AnimationAssets, TextureAssets}, pulsing::Pulsing, GameState};
+use crate::parents::Species;
 
 pub const GROW_SPEED: f32 = 1.0;
 pub const GROW_DURATION: f32 = 5.0;
@@ -116,6 +115,9 @@ fn progress_grow(
                     speed: 0.2,
                     ..default()
                 });
+                if child.species == Species::Poser {
+                    commands.entity(entity).insert(ChildWalking::default());
+                }
             }
         }
     }
