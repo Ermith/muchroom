@@ -23,7 +23,10 @@ fn main() {
                 prevent_default_event_handling: false,
                 resizable: true,
                 //resolution: WindowResolution::new(1280.0, 720.0),
+                #[cfg(not(target_arch = "wasm32"))]
                 resolution: WindowResolution::new(1920.0, 1080.0),
+                #[cfg(target_arch = "wasm32")]
+                resolution: WindowResolution::Windowed(1000000.0, 1000000.0),
                 ..default()
             }),
             ..default()
