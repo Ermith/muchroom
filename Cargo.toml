@@ -76,6 +76,3 @@ bevy_utils = "0.13.0"
 
 [build-dependencies]
 embed-resource = "1"
-
-[patch.crates-io]
-bevy = { git = "https://github.com/bevyengine/bevy", branch = "release-0.13.1" }

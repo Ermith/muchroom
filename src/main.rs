@@ -24,7 +24,6 @@ fn main() {
                 resizable: true,
                 //resolution: WindowResolution::new(1280.0, 720.0),
                 resolution: WindowResolution::new(1920.0, 1080.0),
-                fit_canvas_to_parent: true,
                 ..default()
             }),
             ..default()
